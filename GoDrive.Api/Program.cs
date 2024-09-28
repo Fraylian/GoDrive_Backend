@@ -2,6 +2,9 @@ using Dominio.Entidades;
 using Persistencia.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
+using MediatR;
+using Aplicacion.Vehiculo;
+using FluentValidation.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +18,9 @@ builder.Services.AddDbContext<ProyectoContext>(options =>
 {
     options.UseSqlServer("name=DefaultConnection");
 });
+
+builder.Services.AddMediatR(typeof(listado.Manejador).Assembly);
+builder.Services.AddControllers().AddFluentValidation(cfg => cfg.RegisterValidatorsFromAssemblyContaining<Insertar>());
 
 //var UserBuilder = builder.Services.AddIdentityCore<Usuarios>();
 //var identityBuilder = new IdentityBuilder(UserBuilder.UserType, UserBuilder.Services);
