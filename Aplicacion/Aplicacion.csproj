@@ -17,4 +17,11 @@
     <ProjectReference Include="..\Persistencia\Persistencia.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Clientes\" />
+    <Folder Include="Factura\" />
+    <Folder Include="Factura_Detalle\" />
+    <Folder Include="Usuarios\" />
+  </ItemGroup>
+
 </Project>
