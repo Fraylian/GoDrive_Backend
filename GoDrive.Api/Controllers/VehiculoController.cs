@@ -2,8 +2,6 @@
 using Aplicacion.Vehiculo;
 using MediatR;
 using Dominio.Entidades;
-using Persistencia.Context;
-using System.Threading.Tasks;
 
 namespace GoDrive.Api.Controllers
 {
