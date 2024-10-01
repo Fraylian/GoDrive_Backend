@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
@@ -18,9 +18,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Factura\" />
-    <Folder Include="Factura_Detalle\" />
-    <Folder Include="Usuarios\" />
+    <Folder Include="Metodos\Factura\" />
+    <Folder Include="Metodos\Factura_Detalle\" />
   </ItemGroup>
 
 </Project>
