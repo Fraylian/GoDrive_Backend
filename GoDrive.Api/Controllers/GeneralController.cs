@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MediatR;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace GoDrive.Api.Controllers
 {
