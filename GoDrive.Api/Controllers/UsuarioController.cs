@@ -13,5 +13,11 @@ namespace GoDrive.Api.Controllers
         {
             return await Mediator.Send(datos);
         }
+
+        [HttpPost("registrar")]
+        public async Task<ActionResult<UsuarioData>> Registrar(Insertar.Modelo datos)
+        {
+            return await Mediator.Send(datos);
+        }
     }
 }
