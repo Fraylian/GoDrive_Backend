@@ -22,6 +22,8 @@ builder.Services.AddSwaggerGen(c =>
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Mi API", Version = "v1" });
     c.CustomSchemaIds(x => x.FullName);
 });
+builder.Services.AddScoped<IPasswordHasher<Clientes>, PasswordHasher<Clientes>>();
+
 builder.Services.AddDbContext<ProyectoContext>(options =>
 {
     options.UseSqlServer("name=DefaultConnection");
@@ -38,8 +40,9 @@ builder.Services.TryAddSingleton<ISystemClock, SystemClock>();
 
 builder.Services.Configure<IdentityOptions>(options =>
 {
-    options.User.RequireUniqueEmail = true; 
+    options.User.RequireUniqueEmail = true;
 });
+
 
 
 var app = builder.Build();

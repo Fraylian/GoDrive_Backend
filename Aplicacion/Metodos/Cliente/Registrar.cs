@@ -2,6 +2,7 @@
 using FluentValidation;
 using Persistencia.Context;
 using Dominio.Entidades;
+using Microsoft.AspNetCore.Identity;
 
 namespace Aplicacion.Cliente
 {
@@ -32,7 +33,10 @@ namespace Aplicacion.Cliente
                 .EmailAddress().WithMessage("El correo ingresado no es valido")
                 .MaximumLength(100).WithMessage("El maximo de caracteres es de 100");
 
-                RuleFor(x => x.password).NotEmpty().WithMessage("El campo contraseña no puede estar vacio");
+                RuleFor(x => x.password).NotEmpty().WithMessage("El campo contraseña no puede estar vacio")
+                .MinimumLength(8).WithMessage("La contraseña debe tener un minimo de 8 caracteres")
+                .Matches("[0-9]").WithMessage("La contraseña debe contener al menos un número")
+                .Matches("[^a-zA-Z0-9]").WithMessage("La contraseña debe contener al menos un carácter especial");
 
                 RuleFor(x => x.tipo_identificacion).NotEmpty().WithMessage("Debe de elegir un tipo de identificación");
 
@@ -46,10 +50,12 @@ namespace Aplicacion.Cliente
         public class Manejador : IRequestHandler<Modelo>
         {
             private readonly ProyectoContext _context;
+            private readonly IPasswordHasher<Clientes> _passwordHasher;
 
-            public Manejador(ProyectoContext context)
+            public Manejador(ProyectoContext context, IPasswordHasher<Clientes> passwordHasher)
             {
                 _context = context;
+                _passwordHasher = passwordHasher;
             }
 
             public async Task<Unit> Handle(Modelo request, CancellationToken cancellationToken)
@@ -60,12 +66,13 @@ namespace Aplicacion.Cliente
                     nombre = request.nombre,
                     apellido = request.apellido,
                     correo = request.correo,
-                    password = request.password,
                     fecha_creacion = DateTime.Now,
                     tipo_identificacion = request.tipo_identificacion,
                     numero_identificacion = request.numero_identificacion,
 
                 };
+
+                cliente.password = _passwordHasher.HashPassword(cliente,request.password);
 
                 _context.clientes.Add(cliente);
                 var resultado = await _context.SaveChangesAsync();
