@@ -37,6 +37,9 @@ var identityBuilder = new IdentityBuilder(UserBuilder.UserType, UserBuilder.Serv
 identityBuilder.AddEntityFrameworkStores<ProyectoContext>();
 identityBuilder.AddSignInManager<SignInManager<Usuarios>>();
 builder.Services.TryAddSingleton<ISystemClock, SystemClock>();
+builder.Services.AddCors(o => o.AddPolicy("corsApp", builder => {
+    builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+}));
 
 builder.Services.Configure<IdentityOptions>(options =>
 {
