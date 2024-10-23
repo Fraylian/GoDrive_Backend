@@ -3,7 +3,7 @@ using FluentValidation;
 using Persistencia.Context;
 using Dominio.Entidades;
 
-namespace Aplicacion.Vehiculo
+namespace Aplicacion.Metodos.Vehiculo
 {
     public class Insertar
     {

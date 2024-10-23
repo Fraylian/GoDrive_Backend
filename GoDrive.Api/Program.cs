@@ -3,7 +3,7 @@ using Persistencia.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using MediatR;
-using Aplicacion.Vehiculo;
+using Aplicacion.Metodos.Vehiculo;
 using FluentValidation.AspNetCore;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.AspNetCore.Authentication;

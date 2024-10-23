@@ -3,7 +3,7 @@ using Persistencia.Context;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-namespace Aplicacion.Vehiculo
+namespace Aplicacion.Metodos.Vehiculo
 {
     public class listado
     {
