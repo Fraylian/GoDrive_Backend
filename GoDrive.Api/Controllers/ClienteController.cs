@@ -21,6 +21,20 @@ namespace GoDrive.Api.Controllers
             return await Mediator.Send(new Listado.ListaClientes());
         }
 
+        [HttpGet("{id}")]
+        public async Task<ActionResult<object>> ObetenerCliente(Guid id)
+        {
+            try
+            {
+                return await Mediator.Send(new Consulta.Modelo{ Id = id});
+            }
+            catch (KeyNotFoundException ex)
+            {
+
+                return NotFound(new {mensaje = ex.Message });
+            }
+        }
+
         [HttpPost("login")]
         public async Task<ActionResult<ClienteData>> Login(Login.Modelo parametros)
         {
