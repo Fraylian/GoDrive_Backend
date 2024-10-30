@@ -20,7 +20,8 @@ namespace Aplicacion.Metodos.Cliente
         public class Validador: AbstractValidator<Modelo>
         {
             public Validador() {
-                RuleFor(x => x.correo).NotEmpty().WithMessage("El campo correo no debe estar vacio").EmailAddress().WithMessage("El correo ingresado no es valido");
+                RuleFor(x => x.correo).NotEmpty().WithMessage("El campo correo no debe estar vacio")
+                    .EmailAddress().WithMessage("El correo ingresado no es valido");
                 RuleFor(x => x.password).NotEmpty().WithMessage("El campo contraseña es requerido");
             
             }
@@ -48,7 +49,7 @@ namespace Aplicacion.Metodos.Cliente
                     throw new Exception("El cliente no existe");
                 }
 
-                // Verificar la contraseña
+               
                 var resultado = _passwordHasher.VerifyHashedPassword(cliente, cliente.password, request.password);
 
                 if (resultado == PasswordVerificationResult.Failed)
@@ -56,7 +57,7 @@ namespace Aplicacion.Metodos.Cliente
                     throw new Exception("La contraseña es incorrecta");
                 }
 
-                // Si la verificación es exitosa, retornamos los datos del cliente
+                
                 return new ClienteData
                 {
                     nombre = cliente.nombre,

@@ -52,7 +52,7 @@ namespace Aplicacion.Metodos.Usuario
 
                 if (usuarioRegistrado)
                 {
-                    throw new Exception("Ese correo ya esta registrado");
+                    throw new KeyNotFoundException("Este correo ya esta registrado");
                 }
 
                 var usuario = new Usuarios

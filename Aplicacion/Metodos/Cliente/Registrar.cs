@@ -2,7 +2,9 @@
 using FluentValidation;
 using Persistencia.Context;
 using Dominio.Entidades;
+using Dominio.Enums;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace Aplicacion.Cliente
 {
@@ -38,7 +40,10 @@ namespace Aplicacion.Cliente
                 .Matches("[0-9]").WithMessage("La contraseña debe contener al menos un número")
                 .Matches("[^a-zA-Z0-9]").WithMessage("La contraseña debe contener al menos un carácter especial");
 
-                RuleFor(x => x.tipo_identificacion).NotEmpty().WithMessage("Debe de elegir un tipo de identificación");
+                RuleFor(x => x.tipo_identificacion)
+               .NotEmpty().WithMessage("Debe de elegir un tipo de identificación")
+                .Must(value => Enum.TryParse<tipo_identificacion>(value,true, out _))
+                .WithMessage("El tipo de identificación debe ser Cedula o Pasaporte");
 
                 RuleFor(x => x.numero_identificacion).NotEmpty().WithMessage("El campo numero de documento no puede estar vacio")
                     .MaximumLength(20).WithMessage("El maximo de caracteres es 20");
@@ -60,6 +65,13 @@ namespace Aplicacion.Cliente
 
             public async Task<Unit> Handle(Modelo request, CancellationToken cancellationToken)
             {
+
+                var cliente_existe = await _context.clientes.Where(x => x.correo == request.correo).AnyAsync();
+                if (cliente_existe)
+                {
+                    throw new KeyNotFoundException("Este correo ya esta registrado");
+                    
+                }
                 var cliente = new Clientes
                 {
                     id = Guid.NewGuid(),

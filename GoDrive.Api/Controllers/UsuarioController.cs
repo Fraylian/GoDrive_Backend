@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Aplicacion.Metodos.Usuario;
-using MediatR;
-using Dominio.Entidades;
 using Aplicacion.Seguridad;
 
 namespace GoDrive.Api.Controllers
@@ -17,7 +15,16 @@ namespace GoDrive.Api.Controllers
         [HttpPost("registrar")]
         public async Task<ActionResult<UsuarioData>> Registrar(Insertar.Modelo datos)
         {
-            return await Mediator.Send(datos);
+            try
+            {
+                return await Mediator.Send(datos);
+            }
+            catch (KeyNotFoundException ex)
+            {
+
+                return BadRequest(new {mensaje = ex.Message});
+            }
+            
         }
     }
 }

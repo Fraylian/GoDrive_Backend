@@ -2,6 +2,7 @@
 using FluentValidation;
 using Persistencia.Context;
 using Dominio.Entidades;
+using Dominio.Enums;
 
 namespace Aplicacion.Metodos.Vehiculo
 {
@@ -43,6 +44,8 @@ namespace Aplicacion.Metodos.Vehiculo
                 
                 RuleFor(x => x.transmision)
                     .NotEmpty().WithMessage("La transmisión es requerida.")
+                    .Must(value => Enum.TryParse<tipo_transmision>(value,true, out _))
+                    .WithMessage("La transmisión debe ser Manual o Automatica")
                     .Length(1, 15).WithMessage("La transmisión debe tener un máximo de 15 caracteres.");
 
 

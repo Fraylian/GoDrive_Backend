@@ -12,7 +12,16 @@ namespace GoDrive.Api.Controllers
         [HttpPost("registrar")]
         public async Task<ActionResult<Unit>> Registrar(Registrar.Modelo datos)
         {
-            return await Mediator.Send(datos);
+            try
+            {
+                return await Mediator.Send(datos);
+            }
+            catch (KeyNotFoundException ex)
+            {
+
+                return BadRequest(new {mensaje = ex.Message});
+            }
+            
         }
 
         [HttpGet]
