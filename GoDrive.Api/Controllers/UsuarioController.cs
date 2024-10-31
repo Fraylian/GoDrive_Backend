@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Aplicacion.Metodos.Usuario;
 using Aplicacion.Seguridad;
+using Dominio.Entidades;
 
 namespace GoDrive.Api.Controllers
 {
@@ -22,9 +23,16 @@ namespace GoDrive.Api.Controllers
             catch (KeyNotFoundException ex)
             {
 
-                return BadRequest(new {mensaje = ex.Message});
+                return BadRequest(new { mensaje = ex.Message });
             }
-            
+
+        }
+
+
+        [HttpGet]
+        public async Task<List<Usuarios>> Lista()
+        {
+            return await Mediator.Send(new Listado.ListaUsuarios());
         }
     }
 }

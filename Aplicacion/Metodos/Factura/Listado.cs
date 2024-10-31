@@ -9,6 +9,7 @@ namespace Aplicacion.Metodos.Factura
     {
         public class FacturaDto
         {
+            public int Id { get; set; }
             public string cliente { get; set; }
             public string usuario { get; set; }
             public string fecha_creacion { get; set; }
@@ -35,6 +36,7 @@ namespace Aplicacion.Metodos.Factura
                                       join u in _context.usuarios on f.id_usuario equals u.Id
                                       select new FacturaDto
                                       {
+                                          Id = f.id,
                                           cliente = $"{c.nombre} {c.apellido}",
                                           usuario = $"{u.nombre} {u.apellido}",
                                           fecha_creacion = f.fecha_creacion.ToString("dd/MM/yy"),
