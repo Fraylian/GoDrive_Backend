@@ -12,11 +12,7 @@ namespace Dominio.Entidades
 
         [ForeignKey("id_cliente")]
         public Clientes cliente { get; set; }
-        [Required]
-        public String id_usuario { get; set; }
 
-        [ForeignKey("id_usuario")]
-        public Usuarios usuario { get; set; }
 
         [Required]
         public DateTime fecha_creacion { get; set; }

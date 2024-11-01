@@ -205,7 +205,6 @@ namespace Persistencia.Migrations
                     id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     id_cliente = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    id_usuario = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     fecha_creacion = table.Column<DateTime>(type: "datetime2", nullable: false),
                     monto_total = table.Column<decimal>(type: "decimal(10,2)", nullable: false),
                     subtotal = table.Column<decimal>(type: "decimal(10,2)", nullable: false),
@@ -216,12 +215,6 @@ namespace Persistencia.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_factura", x => x.id);
-                    table.ForeignKey(
-                        name: "FK_factura_AspNetUsers_id_usuario",
-                        column: x => x.id_usuario,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_factura_clientes_id_cliente",
                         column: x => x.id_cliente,
@@ -304,11 +297,6 @@ namespace Persistencia.Migrations
                 column: "id_cliente");
 
             migrationBuilder.CreateIndex(
-                name: "IX_factura_id_usuario",
-                table: "factura",
-                column: "id_usuario");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_factura_Detalles_factura_id",
                 table: "factura_Detalles",
                 column: "factura_id");
@@ -343,13 +331,13 @@ namespace Persistencia.Migrations
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
+                name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
                 name: "factura");
 
             migrationBuilder.DropTable(
                 name: "vehiculos");
-
-            migrationBuilder.DropTable(
-                name: "AspNetUsers");
 
             migrationBuilder.DropTable(
                 name: "clientes");

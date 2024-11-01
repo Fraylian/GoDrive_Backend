@@ -10,7 +10,6 @@ namespace Aplicacion.Metodos.Factura
         public class Modelo: IRequest
         {
             public Guid id_cliente { get; set; }
-            public String id_usuario { get; set; }
             public DateTime fecha_creacion { get; set; }
             public decimal monto_total { get; set; }
             public decimal subtotal { get; set; }
@@ -26,7 +25,7 @@ namespace Aplicacion.Metodos.Factura
             {
                 RuleFor(x => x.id_cliente).NotEmpty().WithMessage("El cliente debe ser ingresado");
 
-                RuleFor(x => x.id_usuario).NotEmpty().WithMessage("El usuario debe ser ingresado");
+ 
 
                 RuleFor(x => x.fecha_renta_inicio).GreaterThanOrEqualTo(DateTime.Today)
                 .WithMessage("La fecha de renta inicial no puede ser anterior al día de hoy");
@@ -61,7 +60,6 @@ namespace Aplicacion.Metodos.Factura
                 var factura = new factura
                 {
                     id_cliente = request.id_cliente,
-                    id_usuario = request.id_usuario,
                     fecha_creacion = DateTime.Today,
                     fecha_renta_inicio = request.fecha_renta_inicio,
                     fecha_renta_final = request.fecha_renta_final,

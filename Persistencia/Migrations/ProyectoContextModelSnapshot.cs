@@ -3,7 +3,6 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Persistencia.Context;
 
@@ -12,10 +11,9 @@ using Persistencia.Context;
 namespace Persistencia.Migrations
 {
     [DbContext(typeof(ProyectoContext))]
-    [Migration("20240922185434_initial")]
-    partial class initial
+    partial class ProyectoContextModelSnapshot : ModelSnapshot
     {
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -87,10 +85,6 @@ namespace Persistencia.Migrations
                     b.Property<Guid>("id_cliente")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("id_usuario")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<decimal>("monto_itbis")
                         .HasColumnType("decimal(10,2)");
 
@@ -103,8 +97,6 @@ namespace Persistencia.Migrations
                     b.HasKey("id");
 
                     b.HasIndex("id_cliente");
-
-                    b.HasIndex("id_usuario");
 
                     b.ToTable("factura");
                 });
@@ -415,15 +407,7 @@ namespace Persistencia.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Dominio.Entidades.Usuarios", "usuario")
-                        .WithMany()
-                        .HasForeignKey("id_usuario")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("cliente");
-
-                    b.Navigation("usuario");
                 });
 
             modelBuilder.Entity("Dominio.Entidades.factura_detalle", b =>

@@ -15,7 +15,6 @@ namespace Aplicacion.Metodos.Factura
         {
             
             public string cliente { get; set; }
-            public string usuario { get; set; }
             public string fecha_creacion { get; set; }
             public string fecha_renta_inicio { get; set; }
             public string fecha_renta_final { get; set; }
@@ -37,11 +36,10 @@ namespace Aplicacion.Metodos.Factura
             {
                 var factura = await (from f in _context.factura where f.id == request.id
                                join c in _context.clientes on f.id_cliente equals c.id
-                               join u in _context.usuarios on f.id_usuario equals u.Id
+                               
                                select new Modelo
                                {
                                    cliente = $"{c.nombre} {c.apellido}",
-                                   usuario = $"{u.nombre} {u.apellido}",
                                    fecha_creacion = f.fecha_creacion.ToString("dd/MM/yy"),
                                    fecha_renta_inicio = f.fecha_renta_inicio.ToString("dd/MM/yy"),
                                    fecha_renta_final = f.fecha_renta_final.ToString("dd/MM/yy"),

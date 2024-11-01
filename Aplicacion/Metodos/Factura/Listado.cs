@@ -33,12 +33,10 @@ namespace Aplicacion.Metodos.Factura
             {
                 var facturas = await (from f in _context.factura
                                       join c in _context.clientes on f.id_cliente equals c.id
-                                      join u in _context.usuarios on f.id_usuario equals u.Id
                                       select new FacturaDto
                                       {
                                           Id = f.id,
                                           cliente = $"{c.nombre} {c.apellido}",
-                                          usuario = $"{u.nombre} {u.apellido}",
                                           fecha_creacion = f.fecha_creacion.ToString("dd/MM/yy"),
                                           fecha_renta_inicio = f.fecha_renta_inicio.ToString("dd/MM/yy"),
                                           fecha_renta_final = f.fecha_renta_final.ToString("dd/MM/yy"),
