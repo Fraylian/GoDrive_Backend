@@ -7,19 +7,32 @@ namespace Aplicacion.Cliente
 {
     public class Listado
     {
-        public class ListaClientes: IRequest<List<Clientes>> { }
+        public class ListaClientes: IRequest<object> { }
 
-        public class Manejador : IRequestHandler<ListaClientes, List<Clientes>>
+        public class Manejador : IRequestHandler<ListaClientes, object>    
         {
             private readonly ProyectoContext _context;
+
             public Manejador(ProyectoContext context)
             {
                 _context = context;
             }
 
-            public async Task<List<Clientes>> Handle(ListaClientes request, CancellationToken cancellationToken)
+            public async Task<object> Handle(ListaClientes request, CancellationToken cancellationToken)
             {
-                var clientes = await _context.clientes.ToListAsync();
+                var clientes = await _context.clientes.Select(c => new
+                {
+
+                    c.id,
+                    c.nombre,
+                    c.apellido,
+                    c.correo,
+                    c.numero_identificacion,
+                    c.tipo_identificacion
+
+
+                }).ToListAsync();
+
                 return clientes;
             }
         }

@@ -19,7 +19,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Mi API", Version = "v1" });
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Go Drive Api ", Version = "v1" });
     c.CustomSchemaIds(x => x.FullName);
 });
 builder.Services.AddScoped<IPasswordHasher<Clientes>, PasswordHasher<Clientes>>();

@@ -25,7 +25,7 @@ namespace GoDrive.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<Clientes>>> Lista()
+        public async Task<ActionResult<object>> Lista()
         {
             return await Mediator.Send(new Listado.ListaClientes());
         }
