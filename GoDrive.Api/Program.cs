@@ -8,6 +8,8 @@ using FluentValidation.AspNetCore;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.AspNetCore.Authentication;
 using Aplicacion.Seguridad;
+using Aplicacion.Seguridad.Cliente;
+using Aplicacion.Seguridad.Usuario;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -37,6 +39,8 @@ var identityBuilder = new IdentityBuilder(UserBuilder.UserType, UserBuilder.Serv
 identityBuilder.AddEntityFrameworkStores<ProyectoContext>();
 identityBuilder.AddSignInManager<SignInManager<Usuarios>>();
 builder.Services.TryAddSingleton<ISystemClock, SystemClock>();
+builder.Services.AddScoped<ITokenCliente, TokenCliente>();
+builder.Services.AddScoped<ITokenUsuario, TokenUsuario>();
 builder.Services.AddCors(o => o.AddPolicy("corsApp", builder => {
     builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
 }));
@@ -58,6 +62,8 @@ using (var scope = app.Services.CreateScope())
     var dataPrueba = new DataPrueba();
     await dataPrueba.InsertarUsuario(context, userManager);
 }
+
+app.UseCors("corsApp");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
