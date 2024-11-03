@@ -3,6 +3,7 @@ using FluentValidation;
 using Dominio.Entidades;
 using Microsoft.AspNetCore.Identity;
 using Aplicacion.Seguridad;
+using Aplicacion.Seguridad.Usuario;
 
 
 namespace Aplicacion.Metodos.Usuario
@@ -29,11 +30,13 @@ namespace Aplicacion.Metodos.Usuario
         {
             private readonly UserManager<Usuarios> _userManager;
             private readonly SignInManager<Usuarios> _signInManager;
+            private readonly ITokenUsuario _tokenUsuario;
 
-            public Manejador(UserManager<Usuarios> userManager, SignInManager<Usuarios> signInManager)
+            public Manejador(UserManager<Usuarios> userManager, SignInManager<Usuarios> signInManager, ITokenUsuario tokenUsuario)
             {
                 _userManager = userManager;
                 _signInManager = signInManager;
+                _tokenUsuario = tokenUsuario;
             }
 
             public async Task<UsuarioData> Handle(Modelo request, CancellationToken cancellationToken)
@@ -52,7 +55,8 @@ namespace Aplicacion.Metodos.Usuario
                     {
                         nombre = usuario.nombre,
                         apellido = usuario.apellido,
-                        email = usuario.Email
+                        email = usuario.Email,
+                        Token = _tokenUsuario.CrearToken(usuario)
                     };
                 }
 

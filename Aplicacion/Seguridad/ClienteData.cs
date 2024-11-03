@@ -6,5 +6,6 @@ namespace Aplicacion.Seguridad
         public string nombre { get; set; }
         public string apellido { get; set; }
         public string correo { get; set; }
+        public string Token { get; set; }
     }
 }

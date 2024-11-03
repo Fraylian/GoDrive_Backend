@@ -1,6 +1,7 @@
 ﻿using Dominio.Entidades;
 using Microsoft.AspNetCore.Identity;
 using Aplicacion.Seguridad;
+using Aplicacion.Seguridad.Cliente;
 using MediatR;
 using FluentValidation;
 using Persistencia.Context;
@@ -32,11 +33,13 @@ namespace Aplicacion.Metodos.Cliente
 
             private readonly ProyectoContext _context;
             private readonly IPasswordHasher<Clientes> _passwordHasher;
+            private readonly ITokenCliente _tokenCliente;
 
-            public Manejador(ProyectoContext context, IPasswordHasher<Clientes> passwordHasher)
+           public Manejador(ProyectoContext context, IPasswordHasher<Clientes> passwordHasher, ITokenCliente tokenCliente)
             {
                 _context = context;
                 _passwordHasher = passwordHasher;
+                _tokenCliente = tokenCliente;
             }
 
             public async Task<ClienteData> Handle(Modelo request, CancellationToken cancellationToken)
@@ -57,12 +60,14 @@ namespace Aplicacion.Metodos.Cliente
                     throw new Exception("La contraseña es incorrecta");
                 }
 
-                
+
                 return new ClienteData
                 {
                     nombre = cliente.nombre,
                     apellido = cliente.apellido,
-                    correo = cliente.correo
+                    correo = cliente.correo,
+                    Token = _tokenCliente.CrearToken(cliente)
+                    
                 };
             }
         }

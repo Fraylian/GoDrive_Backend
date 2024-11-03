@@ -2,17 +2,20 @@
 using Aplicacion.Metodos.Usuario;
 using Aplicacion.Seguridad;
 using Dominio.Entidades;
+using Microsoft.AspNetCore.Authorization;
 
 namespace GoDrive.Api.Controllers
 {
     public class UsuarioController : GeneralController
     {
+        [AllowAnonymous]
         [HttpPost("login")]
         public async Task<ActionResult<UsuarioData>> Login(Login.Modelo datos)
         {
             return await Mediator.Send(datos);
         }
 
+        [AllowAnonymous]
         [HttpPost("registrar")]
         public async Task<ActionResult<UsuarioData>> Registrar(Insertar.Modelo datos)
         {

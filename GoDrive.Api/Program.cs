@@ -11,6 +11,11 @@ using Aplicacion.Seguridad;
 using Aplicacion.Seguridad.Cliente;
 using Aplicacion.Seguridad.Usuario;
 using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,7 +37,12 @@ builder.Services.AddDbContext<ProyectoContext>(options =>
 });
 
 builder.Services.AddMediatR(typeof(listado.Manejador).Assembly);
-builder.Services.AddControllers().AddFluentValidation(cfg => cfg.RegisterValidatorsFromAssemblyContaining<Insertar>());
+builder.Services.AddControllers(opt =>
+{
+    var policy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
+    opt.Filters.Add(new AuthorizeFilter(policy));
+
+}).AddFluentValidation(cfg => cfg.RegisterValidatorsFromAssemblyContaining<Insertar>());
 
 var UserBuilder = builder.Services.AddIdentityCore<Usuarios>();
 var identityBuilder = new IdentityBuilder(UserBuilder.UserType, UserBuilder.Services);
@@ -44,6 +54,18 @@ builder.Services.AddScoped<ITokenUsuario, TokenUsuario>();
 builder.Services.AddCors(o => o.AddPolicy("corsApp", builder => {
     builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
 }));
+
+var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("Proyecto Final TDS-2024 | TDS-601"));
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(opt =>
+{
+    opt.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = key,
+        ValidateAudience = false,
+        ValidateIssuer = false
+    };
+});
 
 builder.Services.Configure<IdentityOptions>(options =>
 {
@@ -77,6 +99,7 @@ app.UseHttpsRedirection();
 //app.UseAuthentication();
 
 app.UseAuthorization();
+app.UseAuthentication();
 
 app.MapControllers();
 

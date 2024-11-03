@@ -4,11 +4,13 @@ using MediatR;
 using Dominio.Entidades;
 using Aplicacion.Seguridad;
 using Aplicacion.Metodos.Cliente;
+using Microsoft.AspNetCore.Authorization;
 
 namespace GoDrive.Api.Controllers
 {
     public class ClienteController : GeneralController
     {
+        [AllowAnonymous]
         [HttpPost("registrar")]
         public async Task<ActionResult<Unit>> Registrar(Registrar.Modelo datos)
         {
@@ -44,6 +46,8 @@ namespace GoDrive.Api.Controllers
             }
         }
 
+
+        [AllowAnonymous]
         [HttpPost("login")]
         public async Task<ActionResult<ClienteData>> Login(Login.Modelo parametros)
         {
