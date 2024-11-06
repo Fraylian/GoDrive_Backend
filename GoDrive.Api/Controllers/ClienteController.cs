@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Aplicacion.Cliente;
-using MediatR;
-using Dominio.Entidades;
 using Aplicacion.Seguridad;
 using Aplicacion.Metodos.Cliente;
 using Microsoft.AspNetCore.Authorization;
@@ -12,7 +10,7 @@ namespace GoDrive.Api.Controllers
     {
         [AllowAnonymous]
         [HttpPost("registrar")]
-        public async Task<ActionResult<Unit>> Registrar(Registrar.Modelo datos)
+        public async Task<ActionResult<ClienteData>> Registrar(Registrar.Modelo datos)
         {
             try
             {

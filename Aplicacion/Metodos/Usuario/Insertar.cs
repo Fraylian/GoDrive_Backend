@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Persistencia.Context;
 using Aplicacion.Seguridad;
+using Aplicacion.Seguridad.Usuario;
 using Dominio.Entidades;
 
 namespace Aplicacion.Metodos.Usuario
@@ -39,11 +40,13 @@ namespace Aplicacion.Metodos.Usuario
         {
             private readonly ProyectoContext _context;
             private readonly UserManager<Usuarios> _userManager;
+            private readonly ITokenUsuario _tokenUsuario;
 
-            public Manejador(ProyectoContext context, UserManager<Usuarios> userManager)
+           public Manejador(ProyectoContext context, UserManager<Usuarios> userManager, ITokenUsuario tokenUsuario)
             {
                 _context = context;
                 _userManager = userManager;
+                _tokenUsuario = tokenUsuario;
             }
 
             public async Task<UsuarioData> Handle(Modelo request, CancellationToken cancellationToken)
@@ -72,6 +75,7 @@ namespace Aplicacion.Metodos.Usuario
                         nombre = usuario.nombre,
                         apellido = usuario.apellido,
                         email = request.correo,
+                        Token = _tokenUsuario.CrearToken(usuario)
                     };
                 }
 

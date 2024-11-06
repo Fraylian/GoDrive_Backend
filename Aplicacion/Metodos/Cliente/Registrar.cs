@@ -5,12 +5,14 @@ using Dominio.Entidades;
 using Dominio.Enums;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Aplicacion.Seguridad;
+using Aplicacion.Seguridad.Cliente;
 
 namespace Aplicacion.Cliente
 {
     public class Registrar
     {
-        public class Modelo: IRequest
+        public class Modelo: IRequest<ClienteData>
         {
             public string nombre { get; set; }
             public string apellido { get; set; }
@@ -52,18 +54,20 @@ namespace Aplicacion.Cliente
             
         }
 
-        public class Manejador : IRequestHandler<Modelo>
+        public class Manejador : IRequestHandler<Modelo, ClienteData>
         {
             private readonly ProyectoContext _context;
             private readonly IPasswordHasher<Clientes> _passwordHasher;
+            private readonly ITokenCliente _tokenCliente;
 
-            public Manejador(ProyectoContext context, IPasswordHasher<Clientes> passwordHasher)
+            public Manejador(ProyectoContext context, IPasswordHasher<Clientes> passwordHasher, ITokenCliente tokenCliente)
             {
                 _context = context;
                 _passwordHasher = passwordHasher;
+                _tokenCliente = tokenCliente;
             }
 
-            public async Task<Unit> Handle(Modelo request, CancellationToken cancellationToken)
+            public async Task<ClienteData> Handle(Modelo request, CancellationToken cancellationToken)
             {
 
                 var cliente_existe = await _context.clientes.Where(x => x.correo == request.correo).AnyAsync();
@@ -90,7 +94,14 @@ namespace Aplicacion.Cliente
                 var resultado = await _context.SaveChangesAsync();
                 if (resultado > 0)
                 {
-                    return Unit.Value;
+                    return new ClienteData{
+                        nombre = cliente.nombre,
+                        apellido = cliente.apellido,
+                        correo = cliente.correo,
+                        Token = _tokenCliente.CrearToken(cliente)
+                        
+                        
+                    };
                 }
                 throw new Exception("No se pudo registrar el cliente");
             }
