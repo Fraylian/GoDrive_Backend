@@ -49,8 +49,11 @@ var identityBuilder = new IdentityBuilder(UserBuilder.UserType, UserBuilder.Serv
 identityBuilder.AddEntityFrameworkStores<ProyectoContext>();
 identityBuilder.AddSignInManager<SignInManager<Usuarios>>();
 builder.Services.TryAddSingleton<ISystemClock, SystemClock>();
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ITokenCliente, TokenCliente>();
+builder.Services.AddScoped<IClienteSesion, ClienteSesion>();
 builder.Services.AddScoped<ITokenUsuario, TokenUsuario>();
+builder.Services.AddScoped<IUsuarioSesion, UsuarioSesion>();
 builder.Services.AddCors(o => o.AddPolicy("corsApp", builder => {
     builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
 }));
@@ -96,10 +99,11 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-//app.UseAuthentication();
 
-app.UseAuthorization();
+
 app.UseAuthentication();
+app.UseAuthorization();
+
 
 app.MapControllers();
 

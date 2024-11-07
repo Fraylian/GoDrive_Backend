@@ -24,7 +24,7 @@ namespace GoDrive.Api.Controllers
             
         }
 
-        [HttpGet]
+        [HttpGet("listado")]
         public async Task<ActionResult<object>> Lista()
         {
             return await Mediator.Send(new Listado.ListaClientes());
@@ -43,6 +43,12 @@ namespace GoDrive.Api.Controllers
                 return NotFound(new {mensaje = ex.Message });
             }
         }
+
+       /* [HttpGet]
+        public async Task<ActionResult<ClienteData>> DevolverCliente()
+        {
+            return await Mediator.Send(new ClienteActual.Modelo());
+        }*/
 
 
         [AllowAnonymous]

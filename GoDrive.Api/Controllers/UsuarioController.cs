@@ -32,10 +32,16 @@ namespace GoDrive.Api.Controllers
         }
 
 
-        [HttpGet]
+        [HttpGet("listado")]
         public async Task<List<Usuarios>> Lista()
         {
             return await Mediator.Send(new Listado.ListaUsuarios());
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<UsuarioData>> DevolverUsuario()
+        {
+            return await Mediator.Send(new UsuarioActual.Modelo());
         }
     }
 }
