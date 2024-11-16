@@ -2,10 +2,11 @@
 using Aplicacion.Metodos.Vehiculo;
 using MediatR;
 using Dominio.Entidades;
-
+using Microsoft.AspNetCore.Authorization;
 
 namespace GoDrive.Api.Controllers
 {
+    [AllowAnonymous]
     public class VehiculoController : GeneralController
     {
         [HttpPost]
@@ -16,13 +17,13 @@ namespace GoDrive.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<Vehiculos>>> Lista()
+        public async Task<ActionResult<List<listado.Modelo>>> Lista()
         {
             return await Mediator.Send(new listado.ListaVehiculos());
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Object>> ObtenerPorId(int id)
+        public async Task<ActionResult<Consulta.Modelo>> ObtenerPorId(int id)
         {
             try
             {

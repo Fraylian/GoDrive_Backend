@@ -6,12 +6,26 @@ namespace Aplicacion.Metodos.Vehiculo
 {
     public class Consulta
     {
-        public class VehiculoId: IRequest<Object>
+        public class Modelo
+        {
+            public string Marca { get; set; }
+            public string modelo { get; set; }
+            public string transmision { get; set; }
+            public int year { get; set; }
+            public int numero_Puertas { get; set; }
+            public int numero_asientos { get; set; }
+            public decimal costo_por_dia { get; set; }
+            public bool rentado { get; set; }
+            public string descripcion { get; set; }
+            public string Imagen { get; set; }
+        }
+        public class VehiculoId: IRequest<Modelo>
         {
             public int  Id { get; set; }
         }
 
-        public class Manejador : IRequestHandler<VehiculoId, Object>
+
+        public class Manejador : IRequestHandler<VehiculoId, Modelo>
         {
             private readonly ProyectoContext _context;
 
@@ -21,21 +35,21 @@ namespace Aplicacion.Metodos.Vehiculo
             }
 
 
-            public async Task<Object> Handle(VehiculoId request, CancellationToken cancellationToken)
+            public async Task<Modelo> Handle(VehiculoId request, CancellationToken cancellationToken)
             {
-                var vehiculo = await _context.vehiculos.Where(v => v.id == request.Id).Select(v => new
+                var vehiculo = await _context.vehiculos.Where(v => v.id == request.Id).Select(v => new Modelo
                 {
-                    v.Matricula,
-                    v.Marca,
-                    v.Modelo,
-                    v.year,
-                    v.transmision,
-                    v.numero_Puertas,
-                    v.numero_asientos,
-                    v.costo_por_dia,
-                    v.rentado,
-                    v.descripcion,
-                    v.imagen
+                    
+                   Marca = v.Marca,
+                   modelo = v.Modelo,
+                   year = v.year,
+                   transmision = v.transmision,
+                   numero_Puertas = v.numero_Puertas,
+                   numero_asientos = v.numero_asientos,
+                   costo_por_dia = v.costo_por_dia,
+                   rentado = v.rentado,
+                   descripcion = v.descripcion,
+                   Imagen = v.imagen != null ? Convert.ToBase64String(v.imagen) : null
                 }).FirstOrDefaultAsync();
 
                 if(vehiculo == null)

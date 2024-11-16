@@ -7,8 +7,21 @@ namespace Aplicacion.Metodos.Vehiculo
 {
     public class listado
     {
-        public class ListaVehiculos: IRequest<List<Vehiculos>> { }
-        public class Manejador : IRequestHandler<ListaVehiculos, List<Vehiculos>>
+        public class Modelo
+        {
+            public string Marca { get; set; }
+            public string modelo { get; set; }
+            public string transmision { get; set; }
+            public int year { get; set; }
+            public int numero_Puertas { get; set; }
+            public int numero_asientos { get; set; }
+            public decimal costo_por_dia { get; set; }
+            public bool rentado { get; set; }
+            public string descripcion { get; set; }
+            public string Imagen { get; set; }
+        }
+        public class ListaVehiculos : IRequest<List<Modelo>> { }
+        public class Manejador : IRequestHandler<ListaVehiculos, List<Modelo>>
         {
             private readonly ProyectoContext _context;
             public Manejador(ProyectoContext context)
@@ -16,9 +29,21 @@ namespace Aplicacion.Metodos.Vehiculo
                 _context = context;
             }
 
-            public async Task<List<Vehiculos>> Handle(ListaVehiculos request, CancellationToken cancellationToken)
+            public async Task<List<Modelo>> Handle(ListaVehiculos request, CancellationToken cancellationToken)
             {
-                var vehiculos = await _context.vehiculos.ToListAsync();
+                var vehiculos = await _context.vehiculos.Select(v => new Modelo
+                {
+                    Marca = v.Marca,
+                    modelo = v.Modelo,
+                    year = v.year,
+                    transmision = v.transmision,
+                    numero_Puertas = v.numero_Puertas,
+                    numero_asientos = v.numero_asientos,
+                    costo_por_dia = v.costo_por_dia,
+                    rentado = v.rentado,
+                    descripcion = v.descripcion,
+                    Imagen = v.imagen != null ? Convert.ToBase64String(v.imagen) : null
+                }).ToListAsync();
                 return vehiculos;
             }
         }
