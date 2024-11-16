@@ -40,7 +40,7 @@ namespace Dominio.Entidades
         [Required]
         public bool rentado { get; set; }
         public string descripcion { get; set; }
-        public string? imagen { get; set; }
+        public byte[]? imagen { get; set; }
 
 
     }

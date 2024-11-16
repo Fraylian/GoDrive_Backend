@@ -2,6 +2,8 @@
 using FluentValidation;
 using Persistencia.Context;
 using Dominio.Entidades;
+using Microsoft.AspNetCore.Http;
+
 namespace Aplicacion.Metodos.Vehiculo
 {
     public class Actualizar
@@ -19,7 +21,7 @@ namespace Aplicacion.Metodos.Vehiculo
             public decimal costo_por_dia { get; set; }
             public bool rentado { get; set; }
             public string descripcion { get; set; }
-            public string? imagen { get; set; }
+            public IFormFile? imagen { get; set; }
 
         }
 
@@ -92,7 +94,15 @@ namespace Aplicacion.Metodos.Vehiculo
                 vehiculo.costo_por_dia = request.costo_por_dia;
                 vehiculo.rentado = request.rentado;
                 vehiculo.descripcion = request.descripcion;
-                vehiculo.imagen = request.imagen;
+
+                if (request.imagen != null)
+                {
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        await request.imagen.CopyToAsync(memoryStream);
+                        vehiculo.imagen = memoryStream.ToArray();
+                    }
+                }
 
                 _context.vehiculos.Update(vehiculo);
 

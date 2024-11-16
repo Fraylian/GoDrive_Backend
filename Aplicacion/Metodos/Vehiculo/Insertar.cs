@@ -3,6 +3,7 @@ using FluentValidation;
 using Persistencia.Context;
 using Dominio.Entidades;
 using Dominio.Enums;
+using Microsoft.AspNetCore.Http;
 
 namespace Aplicacion.Metodos.Vehiculo
 {
@@ -20,7 +21,7 @@ namespace Aplicacion.Metodos.Vehiculo
             public decimal costo_por_dia { get; set; }
             public bool rentado { get; set; }
             public string descripcion { get; set; }
-            public string? imagen { get; set; }
+            public IFormFile? imagen { get; set; }
         }
 
         public class Validator: AbstractValidator<modeloVehiculos>
@@ -78,6 +79,16 @@ namespace Aplicacion.Metodos.Vehiculo
 
             public async Task<Unit> Handle(modeloVehiculos request, CancellationToken cancellationToken)
             {
+                byte[]? imagenBytes = null;
+                if (request.imagen != null)
+                {
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        await request.imagen.CopyToAsync(memoryStream);
+                        imagenBytes = memoryStream.ToArray();
+                    }
+                }
+
                 var vehiculo = new Vehiculos
                 {
                     Matricula = request.Matricula,
@@ -90,7 +101,7 @@ namespace Aplicacion.Metodos.Vehiculo
                     costo_por_dia = request.costo_por_dia,
                     rentado = request.rentado,
                     descripcion = request.descripcion,
-                    imagen = request.imagen
+                    imagen = imagenBytes
                 };
 
                 _context.vehiculos.Add(vehiculo);

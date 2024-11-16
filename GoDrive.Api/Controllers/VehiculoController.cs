@@ -9,7 +9,8 @@ namespace GoDrive.Api.Controllers
     public class VehiculoController : GeneralController
     {
         [HttpPost]
-        public async Task<ActionResult<Unit>> Insertar(Insertar.modeloVehiculos datos)
+        [Consumes("multipart/form-data")]
+        public async Task<ActionResult<Unit>> Insertar([FromForm] Insertar.modeloVehiculos datos)
         {
             return await Mediator.Send(datos);
         }
@@ -36,7 +37,7 @@ namespace GoDrive.Api.Controllers
         }
 
         [HttpPut("editar/{id}")]
-        public async Task<ActionResult<Unit>> Editar(int id,Actualizar.modelo modelo)
+        public async Task<ActionResult<Unit>> Editar(int id, [FromForm] Actualizar.modelo modelo)
         {
             modelo.id = id;
             return await Mediator.Send(modelo);
