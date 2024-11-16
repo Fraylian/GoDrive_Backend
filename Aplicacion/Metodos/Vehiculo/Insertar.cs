@@ -30,24 +30,25 @@ namespace Aplicacion.Metodos.Vehiculo
             {
                 RuleFor(x => x.Matricula)
                .NotEmpty().WithMessage("La matrícula es requerida.")
-               .Length(1, 10).WithMessage("La matrícula debe tener un máximo de 10 caracteres.");
+               .Length(1, 10).WithMessage("La matrícula solo permite un máximo de 10 caracteres.");
 
-                
+
                 RuleFor(x => x.Marca)
-                    .NotEmpty().WithMessage("La marca es requerida.")
-                    .Length(1, 50).WithMessage("La marca debe tener un máximo de 50 caracteres.");
+               .NotEmpty().WithMessage("La marca es requerida.")
+               .Must(value => Marcas.ListaMarcas.Contains(value))
+               .WithMessage("La marca insertada no pertenece a la lista de marcas disponibles");
 
-                
+
                 RuleFor(x => x.Modelo)
                     .NotEmpty().WithMessage("El modelo es requerido.")
-                    .Length(1, 50).WithMessage("El modelo debe tener un máximo de 50 caracteres.");
+                    .Length(1, 50).WithMessage("El modelo solo permite un máximo de 50 caracteres.");
 
                 
                 RuleFor(x => x.transmision)
                     .NotEmpty().WithMessage("La transmisión es requerida.")
                     .Must(value => Enum.TryParse<tipo_transmision>(value,true, out _))
                     .WithMessage("La transmisión debe ser Manual o Automatica")
-                    .Length(1, 15).WithMessage("La transmisión debe tener un máximo de 15 caracteres.");
+                    .Length(1, 15).WithMessage("La transmisión solo permite un máximo de 15 caracteres.");
 
 
                 RuleFor(x => x.year)
