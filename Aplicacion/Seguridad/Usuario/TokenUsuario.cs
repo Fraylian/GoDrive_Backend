@@ -12,7 +12,8 @@ namespace Aplicacion.Seguridad.Usuario
         {
             var claims = new List<Claim>
             {
-                new Claim(JwtRegisteredClaimNames.NameId, usuario.Email)
+                new Claim(JwtRegisteredClaimNames.NameId, usuario.Email),
+                new Claim(ClaimTypes.Role, "Usuario")
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("Proyecto Final TDS-2024 | TDS-601"));

@@ -24,6 +24,7 @@ namespace GoDrive.Api.Controllers
             
         }
 
+        [Authorize(Policy = "User")]
         [HttpGet("listado")]
         public async Task<ActionResult<object>> Lista()
         {

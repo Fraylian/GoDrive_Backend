@@ -12,7 +12,9 @@ namespace Aplicacion.Seguridad.Cliente
         {
             var claims = new List<Claim>
             {
-                new Claim(JwtRegisteredClaimNames.NameId, cliente.correo)
+                new Claim(JwtRegisteredClaimNames.NameId, cliente.correo),
+                new Claim(ClaimTypes.Role, "Cliente")
+
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("Proyecto Final TDS-2024 | TDS-601"));
