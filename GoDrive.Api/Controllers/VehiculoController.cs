@@ -37,6 +37,21 @@ namespace GoDrive.Api.Controllers
             
         }
 
+        [HttpGet("filtrar")]
+        public async Task<ActionResult<List<Vehiculos>>> Filtro([FromQuery] Filtros.Modelo modelo)
+        {
+            try
+            {
+                return await Mediator.Send(modelo);
+            }
+            catch (KeyNotFoundException ex)
+            {
+
+                return BadRequest(new { mensaje = ex.Message });
+            }
+            
+        }
+
         [HttpPut("editar/{id}")]
         public async Task<ActionResult<Unit>> Editar(int id, [FromForm] Actualizar.modelo modelo)
         {
