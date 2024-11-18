@@ -44,7 +44,7 @@ namespace Aplicacion.Metodos.Usuario
                 var usuario = await _userManager.FindByEmailAsync(request.email);
                 if (usuario == null)
                 {
-                    throw new Exception("No se encontro el usuario");
+                    throw new KeyNotFoundException("No se encontro el usuario");
                 }
 
                 var resultado = await _signInManager.CheckPasswordSignInAsync(usuario, request.password, false);
@@ -60,7 +60,7 @@ namespace Aplicacion.Metodos.Usuario
                     };
                 }
 
-                throw new Exception("La contraseña es incorrecta");
+                throw new KeyNotFoundException("La contraseña es incorrecta");
 
             }
         }

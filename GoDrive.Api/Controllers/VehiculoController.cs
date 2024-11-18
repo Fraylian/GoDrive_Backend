@@ -10,10 +10,21 @@ namespace GoDrive.Api.Controllers
     public class VehiculoController : GeneralController
     {
         [HttpPost]
-        [Consumes("multipart/form-data")]
-        public async Task<ActionResult<Unit>> Insertar([FromForm] Insertar.modeloVehiculos datos)
+        //[Consumes("multipart/form-data")]
+        public async Task<ActionResult<Unit>> Insertar([FromBody] Insertar.modeloVehiculos datos)
         {
-            return await Mediator.Send(datos);
+            try
+            {
+                 await Mediator.Send(datos);
+                return StatusCode(StatusCodes.Status201Created, new { mensaje = "El vehículo fue insertado correctamente." });
+            }
+            catch (InvalidOperationException ex)
+            {
+
+                return StatusCode(StatusCodes.Status500InternalServerError, new { mensaje = ex.Message });
+
+            }
+
         }
 
         [HttpGet]
@@ -62,10 +73,25 @@ namespace GoDrive.Api.Controllers
         }
 
         [HttpPut("editar/{id}")]
-        public async Task<ActionResult<Unit>> Editar(int id, [FromForm] Actualizar.modelo modelo)
+        public async Task<ActionResult<Unit>> Editar(int id, [FromBody] Actualizar.modelo modelo)
         {
-            modelo.id = id;
-            return await Mediator.Send(modelo);
+            try
+            {
+                modelo.id = id;
+                return await Mediator.Send(modelo);
+            }
+            catch (KeyNotFoundException ex)
+            {
+
+                return StatusCode(StatusCodes.Status400BadRequest, new {mensaje = ex.Message});
+            }
+            catch (InvalidOperationException ex)
+            {
+
+                return StatusCode(StatusCodes.Status500InternalServerError, new { mensaje = ex.Message });
+            }
+
+
         }
 
         [HttpDelete("{id}")]
@@ -74,7 +100,7 @@ namespace GoDrive.Api.Controllers
             try
             {
                 return await Mediator.Send(new Eliminar.Modelo { Id = id });
-                return Ok();
+                //return Ok();
             }
             catch (KeyNotFoundException ex)
             {

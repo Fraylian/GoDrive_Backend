@@ -82,7 +82,7 @@ namespace Aplicacion.Metodos.Usuario
                 else
                 {
 
-                    throw new Exception("No se puede agregar el usuario");
+                    throw new InvalidOperationException("No se puede agregar el usuario");
                 }
             }
         }

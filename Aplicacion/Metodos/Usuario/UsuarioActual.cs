@@ -26,6 +26,10 @@ namespace Aplicacion.Metodos.Usuario
             public async Task<UsuarioData> Handle(Modelo request, CancellationToken cancellationToken)
             {
                 var usuario = await _userManager.FindByNameAsync(_usuarioSesion.ObtenerUsuarioSesion());
+                if(usuario == null)
+                {
+                    throw new KeyNotFoundException("No se encontro el usuario");
+                }
                 return new UsuarioData
                 {
                     nombre = usuario.nombre,

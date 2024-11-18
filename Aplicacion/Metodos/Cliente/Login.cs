@@ -49,7 +49,7 @@ namespace Aplicacion.Metodos.Cliente
 
                 if (cliente == null)
                 {
-                    throw new Exception("El cliente no existe");
+                    throw new KeyNotFoundException("Este correo no esta registrado");
                 }
 
                
@@ -57,7 +57,7 @@ namespace Aplicacion.Metodos.Cliente
 
                 if (resultado == PasswordVerificationResult.Failed)
                 {
-                    throw new Exception("La contraseña es incorrecta");
+                    throw new KeyNotFoundException("La contraseña es incorrecta");
                 }
 
 

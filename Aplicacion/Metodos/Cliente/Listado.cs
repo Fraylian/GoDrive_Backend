@@ -33,6 +33,10 @@ namespace Aplicacion.Cliente
 
                 }).ToListAsync();
 
+                if (clientes == null ||!clientes.Any())
+                {
+                    return new KeyNotFoundException("No hay clientes registrados");
+                }
                 return clientes;
             }
         }

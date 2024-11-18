@@ -26,6 +26,12 @@ namespace Aplicacion.Metodos.Usuario
             {
                 var usuarios = await _context.Users.ToListAsync();
 
+                if (usuarios == null || !usuarios.Any())
+                {
+                    throw new KeyNotFoundException("No hay usuarios disponibles");
+                }
+    
+
                 return usuarios;
 
             }

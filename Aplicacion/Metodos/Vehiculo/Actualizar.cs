@@ -86,7 +86,7 @@ namespace Aplicacion.Metodos.Vehiculo
                 var vehiculo = await _context.vehiculos.FindAsync(request.id);
                 if(vehiculo == null)
                 {
-                    throw new Exception("No se encontro el vehiculo");
+                    throw new KeyNotFoundException("No se encontro el vehiculo");
                 }
                 vehiculo.Matricula = request.Matricula;
                 vehiculo.Marca = request.Marca;
@@ -116,7 +116,7 @@ namespace Aplicacion.Metodos.Vehiculo
                     return Unit.Value;
                 }
 
-                throw new Exception("No se pudo editar los datos del vehiculo");
+                throw new InvalidOperationException("No se pudo editar los datos del vehiculo");
             }
         }
     }

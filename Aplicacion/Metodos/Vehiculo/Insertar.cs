@@ -112,7 +112,7 @@ namespace Aplicacion.Metodos.Vehiculo
                 {
                     return Unit.Value;
                 }
-                throw new Exception("No se pudo insertar el vehiculo");
+                throw new InvalidOperationException("No se pudo insertar el vehiculo");
             }
 
         }
