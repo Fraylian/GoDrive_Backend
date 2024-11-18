@@ -19,7 +19,16 @@ namespace GoDrive.Api.Controllers
         [HttpGet]
         public async Task<ActionResult<List<listado.Modelo>>> Lista()
         {
-            return await Mediator.Send(new listado.ListaVehiculos());
+            try
+            {
+                return await Mediator.Send(new listado.ListaVehiculos());
+            }
+            catch (KeyNotFoundException ex)
+            {
+
+                return StatusCode(StatusCodes.Status404NotFound, (new { mensaje = ex.Message }));
+            }
+            
         }
 
         [HttpGet("{id}")]
@@ -47,7 +56,7 @@ namespace GoDrive.Api.Controllers
             catch (KeyNotFoundException ex)
             {
 
-                return BadRequest(new { mensaje = ex.Message });
+                return StatusCode(StatusCodes.Status404NotFound, (new { mensaje = ex.Message }));
             }
             
         }

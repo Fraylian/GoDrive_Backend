@@ -44,6 +44,12 @@ namespace Aplicacion.Metodos.Vehiculo
                     descripcion = v.descripcion,
                     Imagen = v.imagen != null ? Convert.ToBase64String(v.imagen) : null
                 }).ToListAsync();
+
+                if (vehiculos == null)
+                {
+                    throw new KeyNotFoundException("No se encontro el vehiculo");
+                }
+
                 return vehiculos;
             }
         }
