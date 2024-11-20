@@ -4,6 +4,7 @@ using Persistencia.Context;
 using Dominio.Entidades;
 using Dominio.Enums;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 
 namespace Aplicacion.Metodos.Vehiculo
 {
@@ -22,7 +23,7 @@ namespace Aplicacion.Metodos.Vehiculo
             public decimal costo_por_dia { get; set; }
             public bool rentado { get; set; }
             public string descripcion { get; set; }
-            public IFormFile? imagen { get; set; }
+            public List<string>? Imagenes { get; set; }
 
         }
 
@@ -83,7 +84,10 @@ namespace Aplicacion.Metodos.Vehiculo
 
             public async Task<Unit> Handle(modelo request, CancellationToken cancellationToken)
             {
-                var vehiculo = await _context.vehiculos.FindAsync(request.id);
+                var vehiculo = await _context.vehiculos
+                .Include(v => v.imagenes)
+                .FirstOrDefaultAsync(v => v.id == request.id);
+
                 if(vehiculo == null)
                 {
                     throw new KeyNotFoundException("No se encontro el vehiculo");
@@ -99,14 +103,21 @@ namespace Aplicacion.Metodos.Vehiculo
                 vehiculo.rentado = request.rentado;
                 vehiculo.descripcion = request.descripcion;
 
-                if (request.imagen != null)
+                if (request.Imagenes != null && request.Imagenes.Any())
                 {
-                    using (var memoryStream = new MemoryStream())
+                    
+                    _context.imagenes.RemoveRange(vehiculo.imagenes);
+
+                    
+                    var nuevasImagenes = request.Imagenes.Select(imagenBase64 => new Imagen
                     {
-                        await request.imagen.CopyToAsync(memoryStream);
-                        vehiculo.imagen = memoryStream.ToArray();
-                    }
+                        vehiculo_id = vehiculo.id,
+                        Data = Convert.FromBase64String(imagenBase64)
+                    }).ToList();
+
+                    _context.imagenes.AddRange(nuevasImagenes);
                 }
+
 
                 _context.vehiculos.Update(vehiculo);
 

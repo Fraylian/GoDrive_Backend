@@ -18,7 +18,8 @@ namespace Aplicacion.Metodos.Vehiculo
             public decimal costo_por_dia { get; set; }
             public bool rentado { get; set; }
             public string descripcion { get; set; }
-            public string Imagen { get; set; }
+            public List<string> Imagenes { get; set; }
+
         }
         public class ListaVehiculos : IRequest<List<Modelo>> { }
         public class Manejador : IRequestHandler<ListaVehiculos, List<Modelo>>
@@ -31,7 +32,9 @@ namespace Aplicacion.Metodos.Vehiculo
 
             public async Task<List<Modelo>> Handle(ListaVehiculos request, CancellationToken cancellationToken)
             {
-                var vehiculos = await _context.vehiculos.Select(v => new Modelo
+                var vehiculos = await _context.vehiculos
+                .Include(v => v.imagenes)
+                .Select(v => new Modelo
                 {
                     Marca = v.Marca,
                     modelo = v.Modelo,
@@ -42,7 +45,10 @@ namespace Aplicacion.Metodos.Vehiculo
                     costo_por_dia = v.costo_por_dia,
                     rentado = v.rentado,
                     descripcion = v.descripcion,
-                    Imagen = v.imagen != null ? Convert.ToBase64String(v.imagen) : null
+                    Imagenes = v.imagenes != null && v.imagenes.Any()
+                    ? v.imagenes.Select(i => Convert.ToBase64String(i.Data)).ToList()
+                    : new List<string>()
+
                 }).ToListAsync();
 
                 if (vehiculos == null)

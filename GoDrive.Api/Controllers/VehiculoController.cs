@@ -10,8 +10,8 @@ namespace GoDrive.Api.Controllers
     public class VehiculoController : GeneralController
     {
         [HttpPost]
-        //[Consumes("multipart/form-data")]
-        public async Task<ActionResult<Unit>> Insertar([FromBody] Insertar.modeloVehiculos datos)
+        [Consumes("multipart/form-data")]
+        public async Task<ActionResult<Unit>> Insertar([FromForm] Insertar.modeloVehiculos datos)
         {
             try
             {
@@ -58,7 +58,7 @@ namespace GoDrive.Api.Controllers
         }
 
         [HttpGet("filtrar")]
-        public async Task<ActionResult<List<Vehiculos>>> Filtro([FromQuery] Filtros.Modelo modelo)
+        public async Task<ActionResult<List<Filtros.Modelo>>> Filtro([FromQuery] Filtros.Parametros modelo)
         {
             try
             {
@@ -73,7 +73,8 @@ namespace GoDrive.Api.Controllers
         }
 
         [HttpPut("editar/{id}")]
-        public async Task<ActionResult<Unit>> Editar(int id, [FromBody] Actualizar.modelo modelo)
+        [Consumes("multipart/form-data")]
+        public async Task<ActionResult<Unit>> Editar(int id, [FromForm] Actualizar.modelo modelo)
         {
             try
             {

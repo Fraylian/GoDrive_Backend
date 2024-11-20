@@ -21,7 +21,7 @@ namespace Aplicacion.Metodos.Vehiculo
             public decimal costo_por_dia { get; set; }
             public bool rentado { get; set; }
             public string descripcion { get; set; }
-            public IFormFile? imagen { get; set; }
+            public List<IFormFile>? Imagenes { get; set; }
         }
 
         public class Validator: AbstractValidator<modeloVehiculos>
@@ -80,15 +80,6 @@ namespace Aplicacion.Metodos.Vehiculo
 
             public async Task<Unit> Handle(modeloVehiculos request, CancellationToken cancellationToken)
             {
-                byte[]? imagenBytes = null;
-                if (request.imagen != null)
-                {
-                    using (var memoryStream = new MemoryStream())
-                    {
-                        await request.imagen.CopyToAsync(memoryStream);
-                        imagenBytes = memoryStream.ToArray();
-                    }
-                }
 
                 var vehiculo = new Vehiculos
                 {
@@ -102,16 +93,46 @@ namespace Aplicacion.Metodos.Vehiculo
                     costo_por_dia = request.costo_por_dia,
                     rentado = request.rentado,
                     descripcion = request.descripcion,
-                    imagen = imagenBytes
+                    
                 };
 
                 _context.vehiculos.Add(vehiculo);
                 var resultado = await _context.SaveChangesAsync();
 
-                if (resultado > 0)
+                if (resultado == 0)
                 {
-                    return Unit.Value;
+                    throw new InvalidOperationException("No se pudo insertar el vehículo.");
                 }
+
+                // Procesar imágenes si existen
+                if (request.Imagenes != null && request.Imagenes.Any())
+                {
+                    var listaImagenes = new List<Imagen>();
+                    foreach (var imagen in request.Imagenes)
+                    {
+                        if (imagen.Length > 0) // Validar que la imagen no esté vacía
+                        {
+                            using var memoryStream = new MemoryStream();
+                            await imagen.CopyToAsync(memoryStream);
+                            var imagenBytes = memoryStream.ToArray();
+
+                            listaImagenes.Add(new Imagen
+                            {
+                                vehiculo_id = vehiculo.id,
+                                Data = imagenBytes
+                            });
+                        }
+                    }
+
+                    if (listaImagenes.Any())
+                    {
+                        _context.imagenes.AddRange(listaImagenes);
+                        await _context.SaveChangesAsync();
+                    }
+                }
+
+
+                return Unit.Value;
                 throw new InvalidOperationException("No se pudo insertar el vehiculo");
             }
 

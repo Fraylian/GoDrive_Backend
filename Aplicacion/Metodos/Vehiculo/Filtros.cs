@@ -9,7 +9,20 @@ namespace Aplicacion.Metodos.Vehiculo
 {
     public class Filtros
     {
-        public class Modelo: IRequest<List<Vehiculos>>
+        public class Modelo
+        {
+            public string Marca { get; set; }
+            public string modelo { get; set; }
+            public string transmision { get; set; }
+            public int? year { get; set; }
+            public int numero_Puertas { get; set; }
+            public int numero_asientos { get; set; }
+            public decimal costo_por_dia { get; set; }
+            public bool rentado { get; set; }
+            public string descripcion { get; set; }
+            public List<string> Imagenes { get; set; }
+        }
+        public class Parametros: IRequest<List<Modelo>>
         {
             public string? Marca { get; set; }
             public string? modelo { get; set; }
@@ -17,7 +30,7 @@ namespace Aplicacion.Metodos.Vehiculo
             public int? year { get; set; }
         }
 
-        public class Validador: AbstractValidator<Modelo>
+        public class Validador: AbstractValidator<Parametros>
         {
             public Validador()
             {
@@ -43,7 +56,7 @@ namespace Aplicacion.Metodos.Vehiculo
             }
         }
 
-        public class Manejador : IRequestHandler<Modelo, List<Vehiculos>>
+        public class Manejador : IRequestHandler<Parametros, List<Modelo>>
         {
             private readonly ProyectoContext _context;
             public Manejador(ProyectoContext context)
@@ -51,9 +64,9 @@ namespace Aplicacion.Metodos.Vehiculo
                 _context = context;
             }
 
-            public async Task<List<Vehiculos>> Handle(Modelo request, CancellationToken cancellationToken)
+            public async Task<List<Modelo>> Handle(Parametros request, CancellationToken cancellationToken)
             {
-                var Filtros = _context.vehiculos.AsQueryable();
+                var Filtros = _context.vehiculos.Include(v => v.imagenes).AsQueryable();
 
                 if (!String.IsNullOrEmpty(request.Marca))
                 {
@@ -78,7 +91,24 @@ namespace Aplicacion.Metodos.Vehiculo
                 {
                     throw new KeyNotFoundException("No se encontro ningun vehiculo con los criterios especificados");
                 }
-                return listaVehiculos;
+                var respuesta = listaVehiculos.Select(v => new Modelo
+                {
+                    Marca = v.Marca,
+                    modelo = v.Modelo,
+                    year = v.year,
+                    numero_Puertas = v.numero_Puertas,
+                    numero_asientos = v.numero_asientos,
+                    costo_por_dia = v.costo_por_dia,
+                    rentado = v.rentado,
+                    descripcion = v.descripcion,
+                    Imagenes = v.imagenes != null && v.imagenes.Any()
+                    ? v.imagenes.Select(i => Convert.ToBase64String(i.Data)).ToList()
+                    : new List<string>()
+                }).ToList();
+
+                
+
+                return respuesta;
             }
         }
     }
