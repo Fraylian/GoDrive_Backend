@@ -17,7 +17,7 @@ namespace Aplicacion.Metodos.Email
         public async Task<bool> Execute(Emails modelo)
         {
             string apiUrl = "https://api.sendgrid.com/v3/mail/send";
-            string apiKey = _configuration["SendGridEmailKey"];
+            string apiKey = _configuration["NewApiKey"];
 
             HttpClient client = new HttpClient();
             client.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiKey}");
