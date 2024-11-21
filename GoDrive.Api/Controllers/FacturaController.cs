@@ -21,6 +21,19 @@ namespace GoDrive.Api.Controllers
 
         }
 
+        [HttpPost("facturar")]
+        public async Task<ActionResult<Unit>> CrearFactura(CrearFactura.ModeloFactura modelo)
+        {
+            try
+            {
+                return await Mediator.Send(modelo);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { mensaje = ex.Message });
+            }
+        }
+
         [HttpGet]
         public async Task<ActionResult<object>> Listado()
         {
