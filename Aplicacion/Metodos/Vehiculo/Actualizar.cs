@@ -3,7 +3,6 @@ using FluentValidation;
 using Persistencia.Context;
 using Dominio.Entidades;
 using Dominio.Enums;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
 namespace Aplicacion.Metodos.Vehiculo

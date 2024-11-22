@@ -9,6 +9,7 @@ namespace Aplicacion.Metodos.Vehiculo
     {
         public class Modelo
         {
+            public int Id { get; set; }
             public string Marca { get; set; }
             public string modelo { get; set; }
             public string transmision { get; set; }
@@ -36,6 +37,7 @@ namespace Aplicacion.Metodos.Vehiculo
                 .Include(v => v.imagenes)
                 .Select(v => new Modelo
                 {
+                    Id = v.id,
                     Marca = v.Marca,
                     modelo = v.Modelo,
                     year = v.year,
@@ -51,9 +53,10 @@ namespace Aplicacion.Metodos.Vehiculo
 
                 }).ToListAsync();
 
-                if (vehiculos == null)
+
+                if (!vehiculos.Any())
                 {
-                    throw new KeyNotFoundException("No se encontro el vehiculo");
+                    throw new KeyNotFoundException("No hay vehículos disponibles.");
                 }
 
                 return vehiculos;

@@ -40,7 +40,7 @@ namespace Aplicacion.Metodos.Factura
                                select new Modelo
                                {
                                    cliente = $"{c.nombre} {c.apellido}",
-                                   fecha_creacion = f.fecha_creacion.ToString("dd/MM/yy"),
+                                   fecha_creacion = f.fecha_creacion.ToString("dd/MM/yyyy HH:mm:ss"),
                                    fecha_renta_inicio = f.fecha_renta_inicio.ToString("dd/MM/yy"),
                                    fecha_renta_final = f.fecha_renta_final.ToString("dd/MM/yy"),
                                    monto_itbis = f.monto_itbis,

@@ -33,7 +33,7 @@ namespace GoDrive.Api.Controllers
 
         }
 
-        [HttpGet]
+        [HttpGet("lista")]
         public async Task<ActionResult<List<listado.Modelo>>> Lista()
         {
             try

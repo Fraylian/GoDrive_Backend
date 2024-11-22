@@ -1,6 +1,5 @@
 ﻿using MediatR;
 using Persistencia.Context;
-using Dominio.Entidades;
 using Microsoft.EntityFrameworkCore;
 
 namespace Aplicacion.Cliente

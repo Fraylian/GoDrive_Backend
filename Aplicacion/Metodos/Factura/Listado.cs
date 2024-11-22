@@ -36,7 +36,7 @@ namespace Aplicacion.Metodos.Factura
                                       {
                                           Id = f.id,
                                           cliente = $"{c.nombre} {c.apellido}",
-                                          fecha_creacion = f.fecha_creacion.ToString("dd/MM/yy"),
+                                          fecha_creacion = f.fecha_creacion.ToString("dd/MM/yyyy HH:mm:ss"),
                                           fecha_renta_inicio = f.fecha_renta_inicio.ToString("dd/MM/yy"),
                                           fecha_renta_final = f.fecha_renta_final.ToString("dd/MM/yy"),
                                           monto_itbis = f.monto_itbis,
@@ -45,7 +45,7 @@ namespace Aplicacion.Metodos.Factura
 
                                       }).ToListAsync();
 
-                if (facturas == null)
+                if (!facturas.Any())
                 {
                     throw new KeyNotFoundException("No hay facturas disponibles");
                 }

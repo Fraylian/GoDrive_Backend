@@ -39,19 +39,20 @@ namespace Aplicacion.Metodos.Factura_Detalle
                                              join c in _context.clientes on f.id_cliente equals c.id
                                              select new Modelo
                                              {
+                                               Id = fd.id,
                                                cliente = $"{c.nombre} {c.apellido}",
                                                modelo = v.Modelo,
                                                marca = v.Marca,
                                                costo_por_dia = fd.costo_por_dia,
                                                dias_rentados = fd.dias_rentados,
                                                costo_total_vehiculo = fd.costo_total_vehiculo,
-                                               fecha_creacion = f.fecha_creacion.ToString("dd/MM/y"),
-                                               fecha_renta_inicio = f.fecha_renta_inicio.ToString("dd/MM/y"),
-                                               fecha_renta_final = f.fecha_renta_final.ToString("dd/mm/y")
+                                               fecha_creacion = f.fecha_creacion.ToString("dd/MM/yyyy HH:mm:ss"),
+                                               fecha_renta_inicio = f.fecha_renta_inicio.ToString("dd/MM/yyyy"),
+                                               fecha_renta_final = f.fecha_renta_final.ToString("dd/mm/yyyy")
                                                
                                              }).ToListAsync();
 
-                if(factura_detalle == null)
+                if(!factura_detalle.Any())
                 {
                     throw new KeyNotFoundException("No hay un lista de detalles de factura");
                 }

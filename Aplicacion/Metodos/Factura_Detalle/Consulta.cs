@@ -48,9 +48,9 @@ namespace Aplicacion.Metodos.Factura_Detalle
                                                  costo_por_dia = fd.costo_por_dia,
                                                  dias_rentados = fd.dias_rentados,
                                                  costo_total_vehiculo = fd.costo_total_vehiculo,
-                                                 fecha_creacion = f.fecha_creacion.ToString("dd/MM/y"),
-                                                 fecha_renta_inicio = f.fecha_renta_inicio.ToString("dd/MM/y"),
-                                                 fecha_renta_final = f.fecha_renta_final.ToString("dd/mm/y")
+                                                 fecha_creacion = f.fecha_creacion.ToString("dd/MM/yyyy HH:mm:ss"),
+                                                 fecha_renta_inicio = f.fecha_renta_inicio.ToString("dd/MM/yyyy"),
+                                                 fecha_renta_final = f.fecha_renta_final.ToString("dd/mm/yyyy")
 
                                              }).FirstOrDefaultAsync();
                 if(factura_detalle == null)
