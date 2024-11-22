@@ -76,6 +76,12 @@ namespace Aplicacion.Cliente
                     throw new KeyNotFoundException("Este correo ya esta registrado");
                     
                 }
+
+                var numero_identificacion_registrado = await _context.clientes.Where(x => x.numero_identificacion == request.numero_identificacion).AnyAsync();
+                if (numero_identificacion_registrado)
+                {
+                    throw new KeyNotFoundException("Este numero de identificacion ya esta registrado");
+                }
                 var cliente = new Clientes
                 {
                     id = Guid.NewGuid(),

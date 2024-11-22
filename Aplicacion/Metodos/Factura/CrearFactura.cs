@@ -73,7 +73,10 @@ namespace Aplicacion.Metodos.Factura
                 
                 decimal montoTotal = subtotal + itbis;
 
-               
+                var ultimaFactura = await _context.factura.OrderByDescending(f => f.id).FirstOrDefaultAsync();
+                string numeroFactura = ultimaFactura == null
+                    ? "FAC-0001"
+                    : $"FAC-{(int.Parse(ultimaFactura.numero_factura.Split('-')[1]) + 1):D4}";
 
                 var factura = new factura
                 {
@@ -83,7 +86,8 @@ namespace Aplicacion.Metodos.Factura
                     fecha_renta_final = request.fecha_renta_final,
                     monto_itbis = itbis,
                     subtotal = subtotal,
-                    monto_total = montoTotal
+                    monto_total = montoTotal,
+                    numero_factura = numeroFactura,
                 };
 
                 _context.factura.Add(factura);

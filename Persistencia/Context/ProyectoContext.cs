@@ -18,6 +18,12 @@ namespace Persistencia.Context
 
             //Configuracion para vehiculos
             builder.Entity<Vehiculos>().HasIndex(v => v.Matricula).IsUnique();
+
+            //Configuracion para clientes
+            builder.Entity<Clientes>().HasIndex(v => v.numero_identificacion).IsUnique();
+
+            //Configuracion para facturas
+            builder.Entity<factura>().HasIndex(f => f.numero_factura).IsUnique();
         }
 
         public DbSet<Clientes> clientes { get; set; }

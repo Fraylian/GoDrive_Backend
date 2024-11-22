@@ -9,6 +9,7 @@ namespace Aplicacion.Metodos.Factura_Detalle
         public class Modelo
         {
             public int Id { get; set; }
+            public string numero_factura { get; set; }
             public string modelo { get; set; }
             public string marca { get; set; }
             public decimal costo_por_dia { get; set; }
@@ -40,6 +41,7 @@ namespace Aplicacion.Metodos.Factura_Detalle
                                              select new Modelo
                                              {
                                                Id = fd.id,
+                                               numero_factura = f.numero_factura,
                                                cliente = $"{c.nombre} {c.apellido}",
                                                modelo = v.Modelo,
                                                marca = v.Marca,

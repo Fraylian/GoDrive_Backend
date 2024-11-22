@@ -13,7 +13,7 @@ namespace Aplicacion.Metodos.Factura
         
         public class Modelo
         {
-            
+            public string numero_factura { get; set; }
             public string cliente { get; set; }
             public string fecha_creacion { get; set; }
             public string fecha_renta_inicio { get; set; }
@@ -38,7 +38,8 @@ namespace Aplicacion.Metodos.Factura
                                join c in _context.clientes on f.id_cliente equals c.id
                                
                                select new Modelo
-                               {
+                               { 
+                                   numero_factura = f.numero_factura,
                                    cliente = $"{c.nombre} {c.apellido}",
                                    fecha_creacion = f.fecha_creacion.ToString("dd/MM/yyyy HH:mm:ss"),
                                    fecha_renta_inicio = f.fecha_renta_inicio.ToString("dd/MM/yy"),

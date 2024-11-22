@@ -7,6 +7,10 @@ namespace Dominio.Entidades
     public class factura
     {
         public int id { get; set; }
+
+        [StringLength(20)]
+        public string numero_factura { get; set; }
+
         [Required]
         public Guid id_cliente { get; set; }
 

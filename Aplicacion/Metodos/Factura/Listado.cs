@@ -17,6 +17,7 @@ namespace Aplicacion.Metodos.Factura
             public decimal monto_total { get; set; }
             public decimal subtotal { get; set; }
             public decimal monto_itbis { get; set; }
+            public string numero_factura { get; set; }
         }
         public class Listado_Facturas: IRequest<List<FacturaDto>> { }
 
@@ -35,6 +36,7 @@ namespace Aplicacion.Metodos.Factura
                                       select new FacturaDto
                                       {
                                           Id = f.id,
+                                          numero_factura = f.numero_factura,
                                           cliente = $"{c.nombre} {c.apellido}",
                                           fecha_creacion = f.fecha_creacion.ToString("dd/MM/yyyy HH:mm:ss"),
                                           fecha_renta_inicio = f.fecha_renta_inicio.ToString("dd/MM/yy"),
