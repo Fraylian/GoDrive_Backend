@@ -6,7 +6,7 @@ namespace GoDrive.Api.Controllers
 {
     public class FacturaController : GeneralController
     {
-        [HttpPost]
+        /*[HttpPost]
         public async Task<ActionResult<Unit>> Insertar(Insertar.Modelo modelo)
         {
             try
@@ -19,18 +19,22 @@ namespace GoDrive.Api.Controllers
                 return BadRequest(new { mensaje = ex.Message });
             }
 
-        }
+        }*/
 
         [HttpPost("facturar")]
-        public async Task<ActionResult<Unit>> CrearFactura(CrearFactura.ModeloFactura modelo)
+        public async Task<ActionResult<Unit>> CrearFactura(CrearFactura.Modelo modelo)
         {
             try
             {
                 return await Mediator.Send(modelo);
             }
+            catch (KeyNotFoundException ex)
+            {
+                return StatusCode(StatusCodes.Status400BadRequest,new { mensaje = ex.Message });
+            }
             catch (InvalidOperationException ex)
             {
-                return BadRequest(new { mensaje = ex.Message });
+                return StatusCode(StatusCodes.Status500InternalServerError, new { mensaje = ex.Message });
             }
         }
 

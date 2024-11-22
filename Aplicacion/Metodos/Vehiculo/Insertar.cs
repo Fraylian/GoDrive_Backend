@@ -4,6 +4,7 @@ using Persistencia.Context;
 using Dominio.Entidades;
 using Dominio.Enums;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 
 namespace Aplicacion.Metodos.Vehiculo
 {
@@ -21,7 +22,7 @@ namespace Aplicacion.Metodos.Vehiculo
             public decimal costo_por_dia { get; set; }
             public bool rentado { get; set; }
             public string descripcion { get; set; }
-            public List<IFormFile>? Imagenes { get; set; }
+            public List<string>? Imagenes { get; set; }
         }
 
         public class Validator: AbstractValidator<modeloVehiculos>
@@ -80,6 +81,12 @@ namespace Aplicacion.Metodos.Vehiculo
 
             public async Task<Unit> Handle(modeloVehiculos request, CancellationToken cancellationToken)
             {
+                var existeMatricula = await _context.vehiculos
+                .AnyAsync(v => v.Matricula == request.Matricula);
+                if (existeMatricula)
+                {
+                    throw new KeyNotFoundException($"El vehículo con la matrícula '{request.Matricula}' ya existe.");
+                }
 
                 var vehiculo = new Vehiculos
                 {
@@ -107,33 +114,17 @@ namespace Aplicacion.Metodos.Vehiculo
                 // Procesar imágenes si existen
                 if (request.Imagenes != null && request.Imagenes.Any())
                 {
-                    var listaImagenes = new List<Imagen>();
-                    foreach (var imagen in request.Imagenes)
+                    var listaImagenes = request.Imagenes.Select(imagenBase64 => new Imagen
                     {
-                        if (imagen.Length > 0) // Validar que la imagen no esté vacía
-                        {
-                            using var memoryStream = new MemoryStream();
-                            await imagen.CopyToAsync(memoryStream);
-                            var imagenBytes = memoryStream.ToArray();
+                        vehiculo_id = vehiculo.id,
+                        Data = Convert.FromBase64String(imagenBase64) 
+                    }).ToList();
 
-                            listaImagenes.Add(new Imagen
-                            {
-                                vehiculo_id = vehiculo.id,
-                                Data = imagenBytes
-                            });
-                        }
-                    }
-
-                    if (listaImagenes.Any())
-                    {
-                        _context.imagenes.AddRange(listaImagenes);
-                        await _context.SaveChangesAsync();
-                    }
+                    _context.imagenes.AddRange(listaImagenes);
+                    await _context.SaveChangesAsync();
                 }
-
-
                 return Unit.Value;
-                throw new InvalidOperationException("No se pudo insertar el vehiculo");
+
             }
 
         }

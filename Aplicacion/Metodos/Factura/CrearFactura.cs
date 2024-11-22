@@ -3,32 +3,22 @@ using Dominio.Entidades;
 using Aplicacion.Metodos.Email;
 using MediatR;
 using FluentValidation;
+using Microsoft.EntityFrameworkCore;
 
 namespace Aplicacion.Metodos.Factura
 {
     public class CrearFactura
     {
-        public class ModeloFactura: IRequest
+        public class Modelo : IRequest
         {
             public Guid id_cliente { get; set; }
             public DateTime fecha_creacion { get; set; }
-            public decimal monto_total { get; set; }
-            public decimal subtotal { get; set; }
-            public decimal monto_itbis { get; set; }
             public DateTime fecha_renta_inicio { get; set; }
             public DateTime fecha_renta_final { get; set; }
-            public List<ModeloDetalles> detalles { get; set; }
-        }
-
-        public class ModeloDetalles
-        {
             public int vehiculo_id { get; set; }
-            public decimal costo_por_dia { get; set; }
-            public int dias_rentados { get; set; }
-            public decimal costo_total_vehiculo { get; set; }
         }
 
-        public class Validador: AbstractValidator<ModeloFactura>
+        public class Validador: AbstractValidator<Modelo>
         {
             public Validador()
             {
@@ -37,43 +27,63 @@ namespace Aplicacion.Metodos.Factura
                 RuleFor(x => x.fecha_renta_inicio).GreaterThanOrEqualTo(DateTime.Today)
                 .WithMessage("La fecha de renta inicial no puede ser anterior al día de hoy");
 
-                RuleFor(x => x.fecha_renta_final).GreaterThanOrEqualTo(x => x.fecha_renta_inicio)
-                .WithMessage("La fecha final debe ser mayor o igual a la renta inicial");
+                RuleFor(x => x.fecha_renta_final).GreaterThan(x => x.fecha_renta_inicio)
+                .WithMessage("La fecha final debe ser mayor a la renta inicial");
 
-                RuleFor(x => x.subtotal).GreaterThan(0).WithMessage("El subtotal debe ser mayor a 0")
-                .ScalePrecision(2, 10).WithMessage("El subtotal no puede tener mas de 2 decimales");
-
-                RuleFor(x => x.monto_itbis).GreaterThan(0).WithMessage("El monto itbis debe ser mayor a 0")
-                .ScalePrecision(2, 10).WithMessage("el itbis no puede tener mas de 2 decimales");
-
-                RuleFor(x => x.monto_total)
-                .ScalePrecision(2, 10).WithMessage("El monto total no puede tener mas de 2 decimales")
-                .GreaterThanOrEqualTo(x => x.subtotal).WithMessage("El monto total debe ser mayor o igual que el subtotal");
+                RuleFor(x => x.vehiculo_id).NotEmpty().WithMessage("El id del vehículo debe ser ingresado")
+               .GreaterThan(0).WithMessage("El id del vehículo debe ser un entero positivo");
             }
         }
 
-        public class Manejador : IRequestHandler<ModeloFactura>
+        public class Manejador : IRequestHandler<Modelo>
         {
             private readonly ProyectoContext _context;
-            private readonly IEmailSender _emailSender;
+            private readonly FacturaEmailService _facturaEmailService;
 
-            public Manejador(ProyectoContext context, IEmailSender emailSender)
+           public Manejador(ProyectoContext context, FacturaEmailService facturaEmailService)
             {
                 _context = context;
-                _emailSender = emailSender;
+                _facturaEmailService = facturaEmailService;
             }
 
-            public async Task<Unit> Handle(ModeloFactura request, CancellationToken cancellationToken)
+            public async Task<Unit> Handle(Modelo request, CancellationToken cancellationToken)
             {
+                var vehiculo = await _context.vehiculos.Where(v => v.id == request.vehiculo_id).FirstOrDefaultAsync();
+                if (vehiculo == null)
+                {
+                    throw new KeyNotFoundException("No se encontro el vehiculo");
+                }
+
+                if (vehiculo.rentado)
+                {
+                    throw new KeyNotFoundException("El vehículo ya está rentado.");
+                }
+
+                int diasRentados = (request.fecha_renta_final - request.fecha_renta_inicio).Days;
+                if (diasRentados <= 0)
+                {
+                    throw new KeyNotFoundException("La fecha de renta final debe ser posterior a la inicial.");
+                }
+
+                decimal subtotal = diasRentados * vehiculo.costo_por_dia;
+
+                
+                decimal itbis = subtotal * 0.18m;
+
+                
+                decimal montoTotal = subtotal + itbis;
+
+               
+
                 var factura = new factura
                 {
                     id_cliente = request.id_cliente,
                     fecha_creacion = DateTime.Now,
                     fecha_renta_inicio = request.fecha_renta_inicio,
                     fecha_renta_final = request.fecha_renta_final,
-                    monto_itbis = request.monto_itbis,
-                    subtotal = request.subtotal,
-                    monto_total = request.monto_total
+                    monto_itbis = itbis,
+                    subtotal = subtotal,
+                    monto_total = montoTotal
                 };
 
                 _context.factura.Add(factura);
@@ -84,19 +94,25 @@ namespace Aplicacion.Metodos.Factura
                     throw new InvalidOperationException("No se pudo crear la factura.");
                 }
 
-                foreach (var detalle in request.detalles)
+                var facturaDetalle = new factura_detalle
                 {
-                    var facturaDetalle = new factura_detalle
-                    {
-                        factura_id = factura.id,
-                        vehiculo_id = detalle.vehiculo_id,
-                        costo_por_dia = detalle.costo_por_dia,
-                        dias_rentados = detalle.dias_rentados,
-                        costo_total_vehiculo = detalle.costo_total_vehiculo
-                    };
+                    factura_id = factura.id,
+                    vehiculo_id = vehiculo.id,
+                    costo_por_dia = vehiculo.costo_por_dia,
+                    dias_rentados = diasRentados,
+                    costo_total_vehiculo = subtotal
 
-                    _context.factura_Detalles.Add(facturaDetalle);
-                }
+                };
+
+               
+
+                _context.factura_Detalles.Add(facturaDetalle);
+
+
+                vehiculo.rentado = true;
+                _context.vehiculos.Update(vehiculo);
+
+
 
                 var resultadoDetalles = await _context.SaveChangesAsync();
 
@@ -104,6 +120,9 @@ namespace Aplicacion.Metodos.Factura
                 {
                     throw new InvalidOperationException("No se pudieron crear los detalles de la factura.");
                 }
+
+                await _facturaEmailService.EnviarCorreoFactura(factura, facturaDetalle, vehiculo);
+
                 return Unit.Value;
             }
         }

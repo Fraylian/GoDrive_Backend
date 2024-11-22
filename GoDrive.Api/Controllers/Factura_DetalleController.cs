@@ -8,7 +8,7 @@ namespace GoDrive.Api.Controllers
 {
     public class Factura_DetalleController : GeneralController
     {
-        [HttpPost]
+       /* [HttpPost]
         public async Task<ActionResult<Unit>> Insertar(Insertar.Modelo modelo)
         {
 
@@ -21,7 +21,7 @@ namespace GoDrive.Api.Controllers
 
                 return BadRequest(new { mensaje = ex.Message });
             }
-        }
+        }*/
 
         [HttpGet]
         public async Task<ActionResult<object>> Lista()

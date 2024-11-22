@@ -52,6 +52,7 @@ identityBuilder.AddSignInManager<SignInManager<Usuarios>>();
 builder.Services.TryAddSingleton<ISystemClock, SystemClock>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IEmailSender, EmailSender>();
+builder.Services.AddTransient<FacturaEmailService>();
 builder.Services.AddScoped<ITokenCliente, TokenCliente>();
 builder.Services.AddScoped<IClienteSesion, ClienteSesion>();
 builder.Services.AddScoped<ITokenUsuario, TokenUsuario>();

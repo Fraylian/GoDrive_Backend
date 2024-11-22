@@ -10,13 +10,19 @@ namespace GoDrive.Api.Controllers
     public class VehiculoController : GeneralController
     {
         [HttpPost]
-        [Consumes("multipart/form-data")]
-        public async Task<ActionResult<Unit>> Insertar([FromForm] Insertar.modeloVehiculos datos)
+
+        public async Task<ActionResult<Unit>> Insertar([FromBody] Insertar.modeloVehiculos datos)
         {
             try
             {
                  await Mediator.Send(datos);
                 return StatusCode(StatusCodes.Status201Created, new { mensaje = "El vehículo fue insertado correctamente." });
+            }
+            catch (KeyNotFoundException ex)
+            {
+
+                return StatusCode(StatusCodes.Status404NotFound, (new { mensaje = ex.Message }));
+
             }
             catch (InvalidOperationException ex)
             {
@@ -73,8 +79,8 @@ namespace GoDrive.Api.Controllers
         }
 
         [HttpPut("editar/{id}")]
-        [Consumes("multipart/form-data")]
-        public async Task<ActionResult<Unit>> Editar(int id, [FromForm] Actualizar.modelo modelo)
+
+        public async Task<ActionResult<Unit>> Editar(int id, [FromBody] Actualizar.modelo modelo)
         {
             try
             {

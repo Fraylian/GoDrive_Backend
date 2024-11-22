@@ -92,6 +92,14 @@ namespace Aplicacion.Metodos.Vehiculo
                 {
                     throw new KeyNotFoundException("No se encontro el vehiculo");
                 }
+
+                var existeMatricula = await _context.vehiculos
+               .AnyAsync(v => v.Matricula == request.Matricula && v.id != request.id);
+                if (existeMatricula)
+                {
+                    throw new KeyNotFoundException($"Ya existe un vehículo con la matrícula '{request.Matricula}'.");
+                }
+
                 vehiculo.Matricula = request.Matricula;
                 vehiculo.Marca = request.Marca;
                 vehiculo.Modelo = request.Modelo;
