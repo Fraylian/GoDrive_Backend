@@ -1,7 +1,8 @@
 ﻿using MediatR;
 using FluentValidation;
 using Persistencia.Context;
-using Dominio.Entidades;
+using Microsoft.AspNetCore.Http;
+using Aplicacion.Seguridad.Response;
 using Dominio.Enums;
 using Microsoft.EntityFrameworkCore;
 
@@ -22,7 +23,7 @@ namespace Aplicacion.Metodos.Vehiculo
             public string descripcion { get; set; }
             public List<string> Imagenes { get; set; }
         }
-        public class Parametros: IRequest<List<Modelo>>
+        public class Parametros: IRequest<ResponseModel>
         {
             public string? Marca { get; set; }
             public string? modelo { get; set; }
@@ -56,7 +57,7 @@ namespace Aplicacion.Metodos.Vehiculo
             }
         }
 
-        public class Manejador : IRequestHandler<Parametros, List<Modelo>>
+        public class Manejador : IRequestHandler<Parametros, ResponseModel>
         {
             private readonly ProyectoContext _context;
             public Manejador(ProyectoContext context)
@@ -64,7 +65,7 @@ namespace Aplicacion.Metodos.Vehiculo
                 _context = context;
             }
 
-            public async Task<List<Modelo>> Handle(Parametros request, CancellationToken cancellationToken)
+            public async Task<ResponseModel> Handle(Parametros request, CancellationToken cancellationToken)
             {
                 var Filtros = _context.vehiculos.Include(v => v.imagenes).AsQueryable();
 
@@ -89,9 +90,9 @@ namespace Aplicacion.Metodos.Vehiculo
 
                 if (listaVehiculos == null || !listaVehiculos.Any())
                 {
-                    throw new KeyNotFoundException("No se encontro ningun vehiculo con los criterios especificados");
+                   return ResponseService.Respuesta(StatusCodes.Status404NotFound, null, "No se encontro ningun vehiculo con los criterios especificados");
                 }
-                var respuesta = listaVehiculos.Select(v => new Modelo
+                var respuesta =  listaVehiculos.Select(v => new Modelo
                 {
                     Marca = v.Marca,
                     modelo = v.Modelo,
@@ -106,9 +107,7 @@ namespace Aplicacion.Metodos.Vehiculo
                     : new List<string>()
                 }).ToList();
 
-                
-
-                return respuesta;
+                return ResponseService.Respuesta(StatusCodes.Status200OK,respuesta);
             }
         }
     }

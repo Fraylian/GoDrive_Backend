@@ -56,7 +56,7 @@ namespace Aplicacion.Metodos.Factura_Detalle
 
                 if(!factura_detalle.Any())
                 {
-                    throw new KeyNotFoundException("No hay un lista de detalles de factura");
+                    throw new KeyNotFoundException("No hay una lista de detalles de factura");
                 }
 
                 return factura_detalle;

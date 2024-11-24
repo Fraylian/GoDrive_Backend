@@ -3,6 +3,7 @@ using Aplicacion.Metodos.Vehiculo;
 using MediatR;
 using Dominio.Entidades;
 using Microsoft.AspNetCore.Authorization;
+using Aplicacion.Seguridad.Response;
 
 namespace GoDrive.Api.Controllers
 {
@@ -11,117 +12,96 @@ namespace GoDrive.Api.Controllers
     {
         [HttpPost]
 
-        public async Task<ActionResult<Unit>> Insertar([FromBody] Insertar.modeloVehiculos datos)
+        public async Task<ActionResult<ResponseModel>> Insertar([FromBody] Insertar.modeloVehiculos datos)
         {
-            try
+
+            var response = await Mediator.Send(datos);
+            if (response.Success == true)
             {
-                 await Mediator.Send(datos);
-                return StatusCode(StatusCodes.Status201Created, new { mensaje = "El vehículo fue insertado correctamente." });
+                return StatusCode(StatusCodes.Status201Created, ResponseService.Respuesta(StatusCodes.Status201Created, response, "El vehículo fue insertado correctamente."));
             }
-            catch (KeyNotFoundException ex)
-            {
-
-                return StatusCode(StatusCodes.Status404NotFound, (new { mensaje = ex.Message }));
-
-            }
-            catch (InvalidOperationException ex)
-            {
-
-                return StatusCode(StatusCodes.Status500InternalServerError, new { mensaje = ex.Message });
-
-            }
+            return StatusCode(response.StatusCode, ResponseService.Respuesta(response.StatusCode, response.Data, response.Mensaje));
 
         }
 
         [HttpGet("lista")]
         public async Task<ActionResult<List<listado.Modelo>>> Lista()
         {
-            try
-            {
-                return await Mediator.Send(new listado.ListaVehiculos());
-            }
-            catch (KeyNotFoundException ex)
-            {
-
-                return StatusCode(StatusCodes.Status404NotFound, (new { mensaje = ex.Message }));
-            }
+           
+               var response = await Mediator.Send(new listado.ListaVehiculos());
+                if (response.Data == null)
+                {
+                    return StatusCode(StatusCodes.Status404NotFound, ResponseService.Respuesta(StatusCodes.Status404NotFound, response.Data, response.Mensaje));
+                }
+                return response.Data;
+           
             
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Consulta.Modelo>> ObtenerPorId(int id)
+        public async Task<ActionResult<ResponseModel>> ObtenerPorId(int id)
         {
-            try
+            if (id <= 0)
             {
-                return await Mediator.Send(new Consulta.VehiculoId { Id = id });
+                return StatusCode(StatusCodes.Status400BadRequest, ResponseService.Respuesta(StatusCodes.Status400BadRequest,null, "El id debe ser mayor a 0"));
             }
-            catch (KeyNotFoundException ex)
+            var response = await Mediator.Send(new Consulta.VehiculoId { Id = id });
+            if(response.Data == null)
             {
+                return StatusCode(response.StatusCode, ResponseService.Respuesta(response.StatusCode, response.Data, response.Mensaje));
+            }
+            return StatusCode(StatusCodes.Status200OK, ResponseService.Respuesta(response.StatusCode, response.Data, response.Mensaje));
 
-                return NotFound(new { mensaje = ex.Message });
-            }
-            
+
         }
 
         [HttpGet("filtrar")]
-        public async Task<ActionResult<List<Filtros.Modelo>>> Filtro([FromQuery] Filtros.Parametros modelo)
+        public async Task<ActionResult<ResponseModel>> Filtro([FromQuery] Filtros.Parametros modelo)
         {
-            try
-            {
-                return await Mediator.Send(modelo);
-            }
-            catch (KeyNotFoundException ex)
-            {
 
-                return StatusCode(StatusCodes.Status404NotFound, (new { mensaje = ex.Message }));
+            var response = await Mediator.Send(modelo);
+            if(response.Data == null)
+            {
+                return StatusCode(StatusCodes.Status404NotFound, ResponseService.Respuesta(StatusCodes.Status404NotFound, response.Data, response.Mensaje));
             }
+            return response;
+            
             
         }
 
         [HttpPut("editar/{id}")]
 
-        public async Task<ActionResult<Unit>> Editar(int id, [FromBody] Actualizar.modelo modelo)
+        public async Task<ActionResult<ResponseModel>> Editar(int id, [FromBody] Actualizar.modelo modelo)
         {
-            try
+            if (id <= 0)
             {
-                modelo.id = id;
-                return await Mediator.Send(modelo);
+                return StatusCode(StatusCodes.Status400BadRequest, ResponseService.Respuesta(StatusCodes.Status400BadRequest, null, "El id debe ser mayor a 0"));
             }
-            catch (KeyNotFoundException ex)
+            modelo.id = id;
+            var response = await Mediator.Send(modelo);
+            if (response.Success == true)
             {
-
-                return StatusCode(StatusCodes.Status400BadRequest, new {mensaje = ex.Message});
+                return StatusCode(StatusCodes.Status200OK, ResponseService.Respuesta(StatusCodes.Status200OK,response.Data, response.Mensaje));
             }
-            catch (InvalidOperationException ex)
-            {
-
-                return StatusCode(StatusCodes.Status500InternalServerError, new { mensaje = ex.Message });
-            }
+            return StatusCode(response.StatusCode, ResponseService.Respuesta(response.StatusCode, response.Data,response.Mensaje));
+            
 
 
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult<Unit>> Eliminar(int id)
+        public async Task<ActionResult<ResponseModel>> Eliminar(int id)
         {
-            try
+            if(id <= 0)
             {
-                return await Mediator.Send(new Eliminar.Modelo { Id = id });
-                //return Ok();
+                return StatusCode(StatusCodes.Status400BadRequest, ResponseService.Respuesta(StatusCodes.Status400BadRequest, null, "El id debe ser mayor a 0"));
             }
-            catch (KeyNotFoundException ex)
+            var response = await Mediator.Send(new Eliminar.Modelo { Id = id });
+            if(response.Success == true)
             {
-
-                return NotFound(new { mensaje = ex.Message });
+                return StatusCode(StatusCodes.Status200OK, ResponseService.Respuesta(StatusCodes.Status200OK, response.Data, response.Mensaje));
             }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(new { mensaje = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { mensaje = "Ocurrió un error inesperado.", detalles = ex.Message });
-            }
+            return StatusCode(response.StatusCode, ResponseService.Respuesta(response.StatusCode, response.Data, response.Mensaje));
         }
     }
 }

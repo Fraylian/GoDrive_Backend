@@ -4,13 +4,14 @@ using Persistencia.Context;
 using Dominio.Entidades;
 using Dominio.Enums;
 using Microsoft.AspNetCore.Http;
+using Aplicacion.Seguridad.Response;
 using Microsoft.EntityFrameworkCore;
 
 namespace Aplicacion.Metodos.Vehiculo
 {
     public class Insertar
     {
-        public class modeloVehiculos: IRequest
+        public class modeloVehiculos: IRequest<ResponseModel>
         {
             public string Matricula { get; set; }
             public string Marca { get; set; }
@@ -70,7 +71,7 @@ namespace Aplicacion.Metodos.Vehiculo
             }
         }
 
-        public class Manejador : IRequestHandler<modeloVehiculos>
+        public class Manejador : IRequestHandler<modeloVehiculos, ResponseModel>
         {
             private readonly ProyectoContext _context;
 
@@ -79,13 +80,14 @@ namespace Aplicacion.Metodos.Vehiculo
                 _context = context;
             }
 
-            public async Task<Unit> Handle(modeloVehiculos request, CancellationToken cancellationToken)
+            public async Task<ResponseModel> Handle(modeloVehiculos request, CancellationToken cancellationToken)
             {
                 var existeMatricula = await _context.vehiculos
                 .AnyAsync(v => v.Matricula == request.Matricula);
                 if (existeMatricula)
                 {
-                    throw new KeyNotFoundException($"El vehículo con la matrícula '{request.Matricula}' ya existe.");
+                    return ResponseService.Respuesta(StatusCodes.Status409Conflict, null, $"El vehículo con la matrícula '{request.Matricula}' ya existe.");
+                    
                 }
 
                 var vehiculo = new Vehiculos
@@ -108,7 +110,8 @@ namespace Aplicacion.Metodos.Vehiculo
 
                 if (resultado == 0)
                 {
-                    throw new InvalidOperationException("No se pudo insertar el vehículo.");
+                    return ResponseService.Respuesta(StatusCodes.Status500InternalServerError,null, "No se pudo insertar el vehículo.");
+                    
                 }
 
                 // Procesar imágenes si existen
@@ -123,7 +126,7 @@ namespace Aplicacion.Metodos.Vehiculo
                     _context.imagenes.AddRange(listaImagenes);
                     await _context.SaveChangesAsync();
                 }
-                return Unit.Value;
+                return ResponseService.Respuesta(StatusCodes.Status201Created);
 
             }
 

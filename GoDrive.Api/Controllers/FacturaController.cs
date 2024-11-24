@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MediatR;
 using Aplicacion.Metodos.Factura;
+using Aplicacion.Seguridad.Response;
 
 namespace GoDrive.Api.Controllers
 {
@@ -39,32 +40,30 @@ namespace GoDrive.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<object>> Listado()
+        public async Task<ActionResult<ResponseModel>> Listado()
         {
-            try
-            {
-                return await Mediator.Send(new Listado.Listado_Facturas());
-            }
-            catch (KeyNotFoundException ex)
-            {
-
-                return NotFound(new {mensaje = ex.Message});
-            }
-            
+                var response = await Mediator.Send(new Listado.Listado_Facturas());
+                if(response.Data == null)
+                {
+                    return StatusCode(StatusCodes.Status404NotFound, ResponseService.Respuesta(StatusCodes.Status404NotFound, response.Data, response.Mensaje));
+                }
+                return StatusCode(StatusCodes.Status200OK, ResponseService.Respuesta(StatusCodes.Status200OK, response.Data));
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<object>> ObtenerPorId(int id)
+        public async Task<ActionResult<ResponseModel>> ObtenerPorId(int id)
         {
-            try
+            if(id == 0)
             {
-                return await Mediator.Send(new Consultar.parametro { id = id });
+                return StatusCode(StatusCodes.Status400BadRequest, ResponseService.Respuesta(StatusCodes.Status400BadRequest));
             }
-            catch (KeyNotFoundException ex)
+            var response = await Mediator.Send(new Consultar.parametro { id = id });
+            if(response.Data == null)
             {
-
-                return NotFound(new {mensaje = ex.Message});
+                return StatusCode(StatusCodes.Status404NotFound, ResponseService.Respuesta(StatusCodes.Status404NotFound, response.Data, response.Mensaje));
             }
+            return response.Data;
+           
         }
     }
 }

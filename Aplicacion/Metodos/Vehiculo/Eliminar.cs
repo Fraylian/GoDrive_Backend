@@ -1,17 +1,19 @@
 ﻿using Persistencia.Context;
 using MediatR;
+using Aplicacion.Seguridad.Response;
+using Microsoft.AspNetCore.Http;
 
 
 namespace Aplicacion.Metodos.Vehiculo
 {
     public class Eliminar
     {
-        public class Modelo: IRequest
+        public class Modelo: IRequest<ResponseModel>
         {
             public int Id { get; set; }
         }
 
-        public class Manejador : IRequestHandler<Modelo>
+        public class Manejador : IRequestHandler<Modelo, ResponseModel>
         {
             private readonly ProyectoContext _context;
 
@@ -20,21 +22,22 @@ namespace Aplicacion.Metodos.Vehiculo
                 _context = context;
             }
 
-            public async Task<Unit> Handle(Modelo request, CancellationToken cancellationToken)
+            public async Task<ResponseModel> Handle(Modelo request, CancellationToken cancellationToken)
             {
                 var vehiculo = await _context.vehiculos.FindAsync(request.Id);
                 if(vehiculo == null)
                 {
-                    throw new KeyNotFoundException("No se encotro el vehiculo");
+                    return ResponseService.Respuesta(StatusCodes.Status404NotFound,null, "No se encotro el vehiculo");
                 }
 
                 _context.vehiculos.Remove(vehiculo);
                 var resultado = await _context.SaveChangesAsync();
                 if(resultado > 0)
                 {
-                    return Unit.Value;
+                    return ResponseService.Respuesta(StatusCodes.Status200OK,null, "Se ha eliminado el vehiculo");
                 }
-                throw new InvalidOperationException("No se pudo eliminar el vehículo.");
+                return ResponseService.Respuesta(StatusCodes.Status500InternalServerError,null, "No se pudo eliminar el vehículo.");
+                
 
 
             }

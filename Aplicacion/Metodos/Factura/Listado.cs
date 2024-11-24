@@ -1,7 +1,8 @@
 ﻿using Persistencia.Context;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-
+using Aplicacion.Seguridad.Response;
+using Microsoft.AspNetCore.Http;
 
 namespace Aplicacion.Metodos.Factura
 {
@@ -19,9 +20,9 @@ namespace Aplicacion.Metodos.Factura
             public decimal monto_itbis { get; set; }
             public string numero_factura { get; set; }
         }
-        public class Listado_Facturas: IRequest<List<FacturaDto>> { }
+        public class Listado_Facturas: IRequest<ResponseModel> { }
 
-        public class Manejador : IRequestHandler<Listado_Facturas, List<FacturaDto>>
+        public class Manejador : IRequestHandler<Listado_Facturas,ResponseModel>
         {
             private readonly ProyectoContext _context;
 
@@ -29,7 +30,7 @@ namespace Aplicacion.Metodos.Factura
             {
                 _context = context;
             }
-            public async Task<List<FacturaDto>> Handle(Listado_Facturas request, CancellationToken cancellationToken)
+            public async Task<ResponseModel> Handle(Listado_Facturas request, CancellationToken cancellationToken)
             {
                 var facturas = await (from f in _context.factura
                                       join c in _context.clientes on f.id_cliente equals c.id
@@ -49,9 +50,9 @@ namespace Aplicacion.Metodos.Factura
 
                 if (!facturas.Any())
                 {
-                    throw new KeyNotFoundException("No hay facturas disponibles");
+                    return ResponseService.Respuesta(StatusCodes.Status404NotFound, null, "No hay facturas disponibles");
                 }
-                return facturas;
+                return ResponseService.Respuesta(StatusCodes.Status200OK, facturas, "Facturas obtenidas correctamente");
             }
         }
     }

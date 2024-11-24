@@ -4,12 +4,14 @@ using Persistencia.Context;
 using Dominio.Entidades;
 using Dominio.Enums;
 using Microsoft.EntityFrameworkCore;
+using Aplicacion.Seguridad.Response;
+using Microsoft.AspNetCore.Http;
 
 namespace Aplicacion.Metodos.Vehiculo
 {
     public class Actualizar
     {
-        public class modelo: IRequest
+        public class modelo: IRequest<ResponseModel>
         {
             public int id { get; set; }
             public string Matricula { get; set; }
@@ -72,7 +74,7 @@ namespace Aplicacion.Metodos.Vehiculo
         }
 
 
-        public class Manejador : IRequestHandler<modelo>
+        public class Manejador : IRequestHandler<modelo,ResponseModel>
         {
             
             private readonly ProyectoContext _context;
@@ -81,7 +83,7 @@ namespace Aplicacion.Metodos.Vehiculo
                 _context = context;
             }
 
-            public async Task<Unit> Handle(modelo request, CancellationToken cancellationToken)
+            public async Task<ResponseModel> Handle(modelo request, CancellationToken cancellationToken)
             {
                 var vehiculo = await _context.vehiculos
                 .Include(v => v.imagenes)
@@ -89,14 +91,14 @@ namespace Aplicacion.Metodos.Vehiculo
 
                 if(vehiculo == null)
                 {
-                    throw new KeyNotFoundException("No se encontro el vehiculo");
+                    return ResponseService.Respuesta(StatusCodes.Status404NotFound,vehiculo, "No se encontro el vehiculo");
                 }
 
                 var existeMatricula = await _context.vehiculos
                .AnyAsync(v => v.Matricula == request.Matricula && v.id != request.id);
                 if (existeMatricula)
                 {
-                    throw new KeyNotFoundException($"Ya existe un vehículo con la matrícula '{request.Matricula}'.");
+                    return ResponseService.Respuesta(StatusCodes.Status409Conflict, null, $"El vehículo con la matrícula '{request.Matricula}' ya existe.");
                 }
 
                 vehiculo.Matricula = request.Matricula;
@@ -131,10 +133,10 @@ namespace Aplicacion.Metodos.Vehiculo
                 var resultado = await _context.SaveChangesAsync();
                 if(resultado > 0)
                 {
-                    return Unit.Value;
+                    return ResponseService.Respuesta(StatusCodes.Status200OK, vehiculo, "Los cambios fueron aplicados exitosamente");
                 }
 
-                throw new InvalidOperationException("No se pudo editar los datos del vehiculo");
+                return ResponseService.Respuesta(StatusCodes.Status500InternalServerError,null, "No se pudo editar los datos del vehiculo"); 
             }
         }
     }

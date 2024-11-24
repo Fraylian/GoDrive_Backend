@@ -2,6 +2,8 @@
 using Persistencia.Context;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Aplicacion.Seguridad.Response;
+using Microsoft.AspNetCore.Http;
 
 namespace Aplicacion.Metodos.Vehiculo
 {
@@ -22,8 +24,8 @@ namespace Aplicacion.Metodos.Vehiculo
             public List<string> Imagenes { get; set; }
 
         }
-        public class ListaVehiculos : IRequest<List<Modelo>> { }
-        public class Manejador : IRequestHandler<ListaVehiculos, List<Modelo>>
+        public class ListaVehiculos : IRequest<ResponseModel> { }
+        public class Manejador : IRequestHandler<ListaVehiculos, ResponseModel>
         {
             private readonly ProyectoContext _context;
             public Manejador(ProyectoContext context)
@@ -31,7 +33,7 @@ namespace Aplicacion.Metodos.Vehiculo
                 _context = context;
             }
 
-            public async Task<List<Modelo>> Handle(ListaVehiculos request, CancellationToken cancellationToken)
+            public async Task<ResponseModel> Handle(ListaVehiculos request, CancellationToken cancellationToken)
             {
                 var vehiculos = await _context.vehiculos
                 .Include(v => v.imagenes)
@@ -56,10 +58,10 @@ namespace Aplicacion.Metodos.Vehiculo
 
                 if (!vehiculos.Any())
                 {
-                    throw new KeyNotFoundException("No hay vehículos disponibles.");
+                    return ResponseService.Respuesta(StatusCodes.Status404NotFound, null, "No hay vehículos disponibles.");
                 }
 
-                return vehiculos;
+                return ResponseService.Respuesta(StatusCodes.Status200OK, vehiculos);
             }
         }
     }
