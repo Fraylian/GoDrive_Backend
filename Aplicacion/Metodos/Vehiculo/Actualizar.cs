@@ -117,13 +117,34 @@ namespace Aplicacion.Metodos.Vehiculo
                     
                     _context.imagenes.RemoveRange(vehiculo.imagenes);
 
-                    
-                    var nuevasImagenes = request.Imagenes.Select(imagenBase64 => new Imagen
-                    {
-                        vehiculo_id = vehiculo.id,
-                        Data = Convert.FromBase64String(imagenBase64)
-                    }).ToList();
+                    var nuevasImagenes = new List<Imagen>();
 
+                    foreach (var imagenBase64 in request.Imagenes)
+                    {
+                        
+                        string base64Data = imagenBase64;
+
+                        if (imagenBase64.Contains(","))
+                        {
+                            base64Data = imagenBase64.Split(",")[1];
+                        }
+
+                        try
+                        {
+                            
+                            var imagen = new Imagen
+                            {
+                                vehiculo_id = vehiculo.id,
+                                Data = Convert.FromBase64String(base64Data)
+                            };
+                            nuevasImagenes.Add(imagen);
+                        }
+                        catch (FormatException)
+                        {
+                            
+                            return ResponseService.Respuesta(StatusCodes.Status400BadRequest,null, "Una o más imágenes tienen un formato Base64 inválido.");
+                        }
+                    }
                     _context.imagenes.AddRange(nuevasImagenes);
                 }
 
