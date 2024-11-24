@@ -1,6 +1,8 @@
 ﻿using Dominio.Entidades;
 using Microsoft.EntityFrameworkCore;
 using Persistencia.Context;
+using Microsoft.AspNetCore.Http;
+using Aplicacion.Seguridad.Response;
 
 namespace Aplicacion.Metodos.Email
 {
@@ -15,7 +17,7 @@ namespace Aplicacion.Metodos.Email
             _context = context;
         }
 
-        public async Task EnviarCorreoFactura(factura factura, factura_detalle detalle, Vehiculos vehiculo)
+        public async Task<ResponseModel> EnviarCorreoFactura(factura factura, factura_detalle detalle, Vehiculos vehiculo)
         {
             var cliente = await _context.clientes
             .Where(c => c.id == factura.id_cliente)
@@ -24,13 +26,14 @@ namespace Aplicacion.Metodos.Email
 
             if (cliente == null || string.IsNullOrEmpty(cliente.correo))
             {
-                throw new KeyNotFoundException("El cliente no tiene un correo electrónico registrado.");
+                return ResponseService.Respuesta(StatusCodes.Status404NotFound,null, "El cliente no tiene un correo electrónico registrado.");
+
             }
 
             string asunto = "Factura de Renta de Vehículo";
             string cuerpo = $@"
             <h1>Detalles de la Factura</h1>
-            <p><strong>ID Factura:</strong> {factura.id}</p>
+            <p><strong>Numero de Factura:</strong> {factura.numero_factura}</p>
             <p><strong>Fecha de Creación:</strong> {factura.fecha_creacion}</p>
             <p><strong>Fechas de Renta:</strong> {factura.fecha_renta_inicio:dd/MM/yyyy} - {factura.fecha_renta_final:dd/MM/yyyy}</p>
             <p><strong>Vehículo:</strong> {vehiculo.Modelo}</p>
@@ -79,8 +82,10 @@ namespace Aplicacion.Metodos.Email
 
             if (!correoEnviado)
             {
-                throw new InvalidOperationException("No se pudo enviar el correo de la factura.");
+                return ResponseService.Respuesta(StatusCodes.Status500InternalServerError, null, "No se pudo enviar el correo de la factura."); 
+                
             }
+            return ResponseService.Respuesta(StatusCodes.Status200OK, null, "El correo de la factura fue enviado exitosamente.");
 
 
         }

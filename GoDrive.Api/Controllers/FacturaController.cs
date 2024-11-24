@@ -23,20 +23,15 @@ namespace GoDrive.Api.Controllers
         }*/
 
         [HttpPost("facturar")]
-        public async Task<ActionResult<Unit>> CrearFactura(CrearFactura.Modelo modelo)
+        public async Task<ActionResult<ResponseModel>> CrearFactura(CrearFactura.Modelo modelo)
         {
-            try
+            var response = await Mediator.Send(modelo);
+            if (response.Success == true)
             {
-                return await Mediator.Send(modelo);
+                return StatusCode(StatusCodes.Status201Created, ResponseService.Respuesta(StatusCodes.Status201Created, response, response.Mensaje));
             }
-            catch (KeyNotFoundException ex)
-            {
-                return StatusCode(StatusCodes.Status400BadRequest,new { mensaje = ex.Message });
-            }
-            catch (InvalidOperationException ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, new { mensaje = ex.Message });
-            }
+            return StatusCode(response.StatusCode, ResponseService.Respuesta(response.StatusCode, response.Data, response.Mensaje));
+
         }
 
         [HttpGet]

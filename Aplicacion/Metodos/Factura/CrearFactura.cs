@@ -4,12 +4,14 @@ using Aplicacion.Metodos.Email;
 using MediatR;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
+using Aplicacion.Seguridad.Response;
 
 namespace Aplicacion.Metodos.Factura
 {
     public class CrearFactura
     {
-        public class Modelo : IRequest
+        public class Modelo : IRequest<ResponseModel>
         {
             public Guid id_cliente { get; set; }
             public DateTime fecha_creacion { get; set; }
@@ -35,7 +37,7 @@ namespace Aplicacion.Metodos.Factura
             }
         }
 
-        public class Manejador : IRequestHandler<Modelo>
+        public class Manejador : IRequestHandler<Modelo, ResponseModel>
         {
             private readonly ProyectoContext _context;
             private readonly FacturaEmailService _facturaEmailService;
@@ -46,23 +48,26 @@ namespace Aplicacion.Metodos.Factura
                 _facturaEmailService = facturaEmailService;
             }
 
-            public async Task<Unit> Handle(Modelo request, CancellationToken cancellationToken)
+            public async Task<ResponseModel> Handle(Modelo request, CancellationToken cancellationToken)
             {
                 var vehiculo = await _context.vehiculos.Where(v => v.id == request.vehiculo_id).FirstOrDefaultAsync();
                 if (vehiculo == null)
                 {
-                    throw new KeyNotFoundException("No se encontro el vehiculo");
+                    return ResponseService.Respuesta(StatusCodes.Status404NotFound, null, "No se encontro el vehiculo");
+                    
                 }
 
                 if (vehiculo.rentado)
                 {
-                    throw new KeyNotFoundException("El vehículo ya está rentado.");
+                    return ResponseService.Respuesta(StatusCodes.Status409Conflict, null, "El vehículo ya está rentado.");
+                    
                 }
 
                 int diasRentados = (request.fecha_renta_final - request.fecha_renta_inicio).Days;
                 if (diasRentados <= 0)
                 {
-                    throw new KeyNotFoundException("La fecha de renta final debe ser posterior a la inicial.");
+                    return ResponseService.Respuesta(StatusCodes.Status400BadRequest, null, "La fecha de renta final debe ser posterior a la inicial.");
+                    
                 }
 
                 decimal subtotal = diasRentados * vehiculo.costo_por_dia;
@@ -95,7 +100,8 @@ namespace Aplicacion.Metodos.Factura
 
                 if (resultadoFactura <= 0)
                 {
-                    throw new InvalidOperationException("No se pudo crear la factura.");
+                    return ResponseService.Respuesta(StatusCodes.Status500InternalServerError,null, "No se pudo crear la factura.");
+                   
                 }
 
                 var facturaDetalle = new factura_detalle
@@ -122,12 +128,23 @@ namespace Aplicacion.Metodos.Factura
 
                 if (resultadoDetalles <= 0)
                 {
-                    throw new InvalidOperationException("No se pudieron crear los detalles de la factura.");
+                    return ResponseService.Respuesta(StatusCodes.Status500InternalServerError, null, "No se pudieron crear los detalles de la factura.");
+                    
+                }
+                string mensajeCorreo = "La factura se creó correctamente.";
+                try
+                {
+                    await _facturaEmailService.EnviarCorreoFactura(factura, facturaDetalle, vehiculo);
+                    mensajeCorreo += " El correo de la factura fue enviado exitosamente.";
+                }
+                catch (Exception)
+                {
+
+                    mensajeCorreo += " Sin embargo, no se pudo enviar el correo de la factura.";
                 }
 
-                await _facturaEmailService.EnviarCorreoFactura(factura, facturaDetalle, vehiculo);
-
-                return Unit.Value;
+             
+                return ResponseService.Respuesta(StatusCodes.Status201Created, null,mensajeCorreo);
             }
         }
     }

@@ -54,7 +54,7 @@ namespace Aplicacion.Metodos.Factura
                                }).FirstOrDefaultAsync();
                 if(factura == null)
                 {
-                    return ResponseService.Respuesta(StatusCodes.Status400BadRequest, null, "No se encontro la factura");
+                    return ResponseService.Respuesta(StatusCodes.Status404NotFound, null, "No se encontro la factura");
                 }
 
                 return ResponseService.Respuesta(StatusCodes.Status200OK, factura);
