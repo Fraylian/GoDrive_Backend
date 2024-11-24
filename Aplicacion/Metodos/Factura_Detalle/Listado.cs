@@ -1,6 +1,9 @@
 ﻿using MediatR;
 using Persistencia.Context;
 using Microsoft.EntityFrameworkCore;
+using Aplicacion.Seguridad.Response;
+using Microsoft.AspNetCore.Http;
+
 
 namespace Aplicacion.Metodos.Factura_Detalle
 {
@@ -21,9 +24,9 @@ namespace Aplicacion.Metodos.Factura_Detalle
             public string fecha_renta_final { get; set; }
 
         }
-        public class listado_detalles_facturas: IRequest<List<Modelo>> { }
+        public class listado_detalles_facturas: IRequest<ResponseModel> { }
 
-        public class Manejador : IRequestHandler<listado_detalles_facturas, List<Modelo>>
+        public class Manejador : IRequestHandler<listado_detalles_facturas, ResponseModel>
         {
             private readonly ProyectoContext _context;
 
@@ -32,7 +35,7 @@ namespace Aplicacion.Metodos.Factura_Detalle
                 _context = context;
             }
 
-            public async Task<List<Modelo>> Handle(listado_detalles_facturas request, CancellationToken cancellationToken)
+            public async Task<ResponseModel> Handle(listado_detalles_facturas request, CancellationToken cancellationToken)
             {
                 var factura_detalle = await (from fd in _context.factura_Detalles
                                              join f in _context.factura on fd.factura_id equals f.id
@@ -56,10 +59,11 @@ namespace Aplicacion.Metodos.Factura_Detalle
 
                 if(!factura_detalle.Any())
                 {
-                    throw new KeyNotFoundException("No hay una lista de detalles de factura");
+                    return ResponseService.Respuesta(StatusCodes.Status404NotFound,null, "No hay una lista de detalles de factura");
+                    
                 }
 
-                return factura_detalle;
+                return ResponseService.Respuesta(StatusCodes.Status200OK, factura_detalle);
                                             
                                             
             }

@@ -1,14 +1,16 @@
 ﻿using MediatR;
 using Persistencia.Context;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
+using Aplicacion.Seguridad.Response;
 
 namespace Aplicacion.Cliente
 {
     public class Listado
     {
-        public class ListaClientes: IRequest<object> { }
+        public class ListaClientes: IRequest<ResponseModel> { }
 
-        public class Manejador : IRequestHandler<ListaClientes, object>    
+        public class Manejador : IRequestHandler<ListaClientes, ResponseModel>    
         {
             private readonly ProyectoContext _context;
 
@@ -17,7 +19,7 @@ namespace Aplicacion.Cliente
                 _context = context;
             }
 
-            public async Task<object> Handle(ListaClientes request, CancellationToken cancellationToken)
+            public async Task<ResponseModel> Handle(ListaClientes request, CancellationToken cancellationToken)
             {
                 var clientes = await _context.clientes.Select(c => new
                 {
@@ -34,9 +36,9 @@ namespace Aplicacion.Cliente
 
                 if (clientes == null ||!clientes.Any())
                 {
-                    return new KeyNotFoundException("No hay clientes registrados");
+                    return ResponseService.Respuesta(StatusCodes.Status404NotFound,null, "No hay clientes registrados");
                 }
-                return clientes;
+                return ResponseService.Respuesta(StatusCodes.Status200OK,clientes);
             }
         }
     }

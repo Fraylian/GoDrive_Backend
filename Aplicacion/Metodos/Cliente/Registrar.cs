@@ -4,6 +4,8 @@ using Persistencia.Context;
 using Dominio.Entidades;
 using Dominio.Enums;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Http;
+using Aplicacion.Seguridad.Response;
 using Microsoft.EntityFrameworkCore;
 using Aplicacion.Seguridad;
 using Aplicacion.Seguridad.Cliente;
@@ -12,7 +14,7 @@ namespace Aplicacion.Cliente
 {
     public class Registrar
     {
-        public class Modelo: IRequest<ClienteData>
+        public class Modelo: IRequest<ResponseModel>
         {
             public string nombre { get; set; }
             public string apellido { get; set; }
@@ -54,7 +56,7 @@ namespace Aplicacion.Cliente
             
         }
 
-        public class Manejador : IRequestHandler<Modelo, ClienteData>
+        public class Manejador : IRequestHandler<Modelo, ResponseModel>
         {
             private readonly ProyectoContext _context;
             private readonly IPasswordHasher<Clientes> _passwordHasher;
@@ -67,20 +69,22 @@ namespace Aplicacion.Cliente
                 _tokenCliente = tokenCliente;
             }
 
-            public async Task<ClienteData> Handle(Modelo request, CancellationToken cancellationToken)
+            public async Task<ResponseModel> Handle(Modelo request, CancellationToken cancellationToken)
             {
 
                 var cliente_existe = await _context.clientes.Where(x => x.correo == request.correo).AnyAsync();
                 if (cliente_existe)
                 {
-                    throw new KeyNotFoundException("Este correo ya esta registrado");
+                    return ResponseService.Respuesta(StatusCodes.Status409Conflict,null, "Este correo ya esta registrado");
+                   
                     
                 }
 
                 var numero_identificacion_registrado = await _context.clientes.Where(x => x.numero_identificacion == request.numero_identificacion).AnyAsync();
                 if (numero_identificacion_registrado)
                 {
-                    throw new KeyNotFoundException("Este numero de identificacion ya esta registrado");
+                    return ResponseService.Respuesta(StatusCodes.Status409Conflict, null, "Este numero de identificacion ya esta registrado");
+                    
                 }
                 var cliente = new Clientes
                 {
@@ -100,7 +104,7 @@ namespace Aplicacion.Cliente
                 var resultado = await _context.SaveChangesAsync();
                 if (resultado > 0)
                 {
-                    return new ClienteData{
+                    var data = new ClienteData{
                         nombre = cliente.nombre,
                         apellido = cliente.apellido,
                         correo = cliente.correo,
@@ -108,8 +112,11 @@ namespace Aplicacion.Cliente
                         
                         
                     };
+
+                    return ResponseService.Respuesta(StatusCodes.Status201Created,data);
                 }
-                throw new Exception("No se pudo registrar el cliente");
+                return ResponseService.Respuesta(StatusCodes.Status500InternalServerError,null, "No se pudo registrar el cliente");
+                
             }
         }
     }

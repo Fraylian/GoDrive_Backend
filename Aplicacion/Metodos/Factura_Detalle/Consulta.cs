@@ -1,12 +1,14 @@
 ﻿using MediatR;
 using Persistencia.Context;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
+using Aplicacion.Seguridad.Response;
 
 namespace Aplicacion.Metodos.Factura_Detalle
 {
     public class Consulta
     {
-        public class Parametro: IRequest<object>
+        public class Parametro: IRequest<ResponseModel>
         {
             public int Id { get; set; }
         }
@@ -25,7 +27,7 @@ namespace Aplicacion.Metodos.Factura_Detalle
 
         }
 
-        public class Manejador : IRequestHandler<Parametro, object>
+        public class Manejador : IRequestHandler<Parametro, ResponseModel>
         {
             private readonly ProyectoContext _context;
 
@@ -34,7 +36,7 @@ namespace Aplicacion.Metodos.Factura_Detalle
                 _context = context;
             }
 
-            public async Task<object> Handle(Parametro request, CancellationToken cancellationToken)
+            public async Task<ResponseModel> Handle(Parametro request, CancellationToken cancellationToken)
             {
                 var factura_detalle = await (from fd in _context.factura_Detalles where fd.id == request.Id
                                              join f in _context.factura on fd.factura_id equals f.id
@@ -56,9 +58,9 @@ namespace Aplicacion.Metodos.Factura_Detalle
                                              }).FirstOrDefaultAsync();
                 if(factura_detalle == null)
                 {
-                    throw new KeyNotFoundException("No se encontro la factura");
+                    return ResponseService.Respuesta(StatusCodes.Status404NotFound,null, "No se encontro la factura");
                 }
-                return factura_detalle;
+                return ResponseService.Respuesta(StatusCodes.Status200OK, factura_detalle); 
             }
         }
     }

@@ -1,17 +1,19 @@
 ﻿using Persistencia.Context;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
+using Aplicacion.Seguridad.Response;
 
 namespace Aplicacion.Metodos.Cliente
 {
     public class Consulta
     {
-        public class Modelo: IRequest<object>
+        public class Modelo: IRequest<ResponseModel>
         {
             public Guid Id { get; set; }
         }
 
-        public class Manejador : IRequestHandler<Modelo, object>
+        public class Manejador : IRequestHandler<Modelo, ResponseModel>
         {
             private readonly ProyectoContext _context;
             public Manejador(ProyectoContext context)
@@ -19,7 +21,7 @@ namespace Aplicacion.Metodos.Cliente
                 _context = context;
             }
 
-            public async Task<object> Handle(Modelo request, CancellationToken cancellationToken)
+            public async Task<ResponseModel> Handle(Modelo request, CancellationToken cancellationToken)
             {
                 var cliente = await _context.clientes.Where(c => c.id == request.Id).Select(c => new
                 {
@@ -32,10 +34,11 @@ namespace Aplicacion.Metodos.Cliente
 
                 if(cliente == null)
                 {
-                    throw new KeyNotFoundException("No se encontro el cliente");
+                    return ResponseService.Respuesta(StatusCodes.Status404NotFound,null, "No se encontro el cliente");
+                    
                 }
 
-                return cliente;
+                return ResponseService.Respuesta(StatusCodes.Status200OK, cliente);
             }
         }
     }

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Aplicacion.Cliente;
-using Aplicacion.Seguridad;
 using Aplicacion.Metodos.Cliente;
+using Aplicacion.Seguridad.Response;
 using Microsoft.AspNetCore.Authorization;
 
 namespace GoDrive.Api.Controllers
@@ -10,17 +10,14 @@ namespace GoDrive.Api.Controllers
     {
         [AllowAnonymous]
         [HttpPost("registrar")]
-        public async Task<ActionResult<ClienteData>> Registrar(Registrar.Modelo datos)
+        public async Task<ActionResult<ResponseModel>> Registrar(Registrar.Modelo datos)
         {
-            try
+            var response = await Mediator.Send(datos);
+            if (response.Success == true)
             {
-                return await Mediator.Send(datos);
+                return StatusCode(StatusCodes.Status201Created, ResponseService.Respuesta(response.StatusCode, response.Data, response.Mensaje));
             }
-            catch (KeyNotFoundException ex)
-            {
-
-                return BadRequest(new {mensaje = ex.Message});
-            }
+            return StatusCode(response.StatusCode, ResponseService.Respuesta(response.StatusCode, response.Data, response.Mensaje));
             
         }
 
@@ -28,30 +25,25 @@ namespace GoDrive.Api.Controllers
         [HttpGet("listado")]
         public async Task<ActionResult<object>> Lista()
         {
-            try
+            var response = await Mediator.Send(new Listado.ListaClientes());
+            if(response.Data == null)
             {
-                return await Mediator.Send(new Listado.ListaClientes());
+                return StatusCode(response.StatusCode, ResponseService.Respuesta(response.StatusCode, response.Data, response.Mensaje));
             }
-            catch (KeyNotFoundException ex)
-            {
-
-                return StatusCode(StatusCodes.Status404NotFound, new {mensaje = ex.Message});
-            }
+            return StatusCode(StatusCodes.Status200OK, ResponseService.Respuesta(response.StatusCode,response.Data));
             
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<object>> ObetenerCliente(Guid id)
+        public async Task<ActionResult<ResponseModel>> ObetenerCliente(Guid id)
         {
-            try
+            var response = await Mediator.Send(new Consulta.Modelo { Id = id });
+            if(response.Data == null)
             {
-                return await Mediator.Send(new Consulta.Modelo{ Id = id});
+                return StatusCode(response.StatusCode, ResponseService.Respuesta(response.StatusCode,response.Data,response.Mensaje));
             }
-            catch (KeyNotFoundException ex)
-            {
+            return StatusCode(StatusCodes.Status200OK, ResponseService.Respuesta(response.StatusCode, response.Data, response.Mensaje));
 
-                return NotFound(new {mensaje = ex.Message });
-            }
         }
 
        /* [HttpGet]
@@ -63,17 +55,15 @@ namespace GoDrive.Api.Controllers
 
         [AllowAnonymous]
         [HttpPost("login")]
-        public async Task<ActionResult<ClienteData>> Login(Login.Modelo parametros)
+        public async Task<ActionResult<ResponseModel>> Login(Login.Modelo parametros)
         {
-            try
+            var response = await Mediator.Send(parametros);
+            if (response.Success == true)
             {
-                return await Mediator.Send(parametros);
+                return StatusCode(StatusCodes.Status200OK, ResponseService.Respuesta(response.StatusCode, response.Data, response.Mensaje));
             }
-            catch (KeyNotFoundException ex)
-            {
-
-                return BadRequest(new {mensaje = ex.Message}); ;
-            }
+            return StatusCode(response.StatusCode, ResponseService.Respuesta(response.StatusCode, response.Data, response.Mensaje));
+            
             
         }
 

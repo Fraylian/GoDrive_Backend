@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using MediatR;
+using Aplicacion.Seguridad.Response;
+using Microsoft.AspNetCore.Http;
 using Aplicacion.Metodos.Factura_Detalle;
 
 
@@ -24,31 +25,31 @@ namespace GoDrive.Api.Controllers
         }*/
 
         [HttpGet]
-        public async Task<ActionResult<object>> Lista()
+        public async Task<ActionResult<ResponseModel>> Lista()
         {
-            try
+            var response = await Mediator.Send(new Listado.listado_detalles_facturas());
+            if (response.Data == null)
             {
-                return await Mediator.Send(new Listado.listado_detalles_facturas());
+                return StatusCode(StatusCodes.Status404NotFound, ResponseService.Respuesta(StatusCodes.Status404NotFound, response.Data, response.Mensaje));
             }
-            catch (KeyNotFoundException ex)
-            {
-
-                return BadRequest(new { mensaje = ex.Message });
-            }
+            return StatusCode(response.StatusCode, ResponseService.Respuesta(response.StatusCode,response.Data,response.Mensaje));
+            
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<object>> ObtenerById(int id)
+        public async Task<ActionResult<ResponseModel>> ObtenerById(int id)
         {
-            try
+            if(id <= 0)
             {
-                return await Mediator.Send(new Consulta.Parametro { Id = id });
+                return StatusCode(StatusCodes.Status400BadRequest,ResponseService.Respuesta(StatusCodes.Status400BadRequest,null,"El id debe ser mayor a 0"));
             }
-            catch (KeyNotFoundException ex)
-            {
 
-                return BadRequest(new {mensaje = ex.Message});
+            var response = await Mediator.Send(new Consulta.Parametro { Id = id });
+            if (response.Data == null)
+            {
+                return StatusCode(response.StatusCode, ResponseService.Respuesta(response.StatusCode, response.Data, response.Mensaje));
             }
+            return StatusCode(StatusCodes.Status200OK, ResponseService.Respuesta(response.StatusCode, response.Data, response.Mensaje));
         }
     }
 }

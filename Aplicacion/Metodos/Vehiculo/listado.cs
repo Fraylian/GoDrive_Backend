@@ -1,5 +1,4 @@
-﻿using Dominio.Entidades;
-using Persistencia.Context;
+﻿using Persistencia.Context;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Aplicacion.Seguridad.Response;

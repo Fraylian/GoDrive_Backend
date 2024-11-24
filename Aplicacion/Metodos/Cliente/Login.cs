@@ -6,12 +6,14 @@ using MediatR;
 using FluentValidation;
 using Persistencia.Context;
 using Microsoft.EntityFrameworkCore;
+using Aplicacion.Seguridad.Response;
+using Microsoft.AspNetCore.Http;
 
 namespace Aplicacion.Metodos.Cliente
 {
     public class Login
     {
-        public class Modelo : IRequest<ClienteData> {
+        public class Modelo : IRequest<ResponseModel> {
 
             public string correo { get; set; }
             public string password { get; set; }
@@ -28,7 +30,7 @@ namespace Aplicacion.Metodos.Cliente
             }
         }
 
-        public class Manejador : IRequestHandler<Modelo, ClienteData>
+        public class Manejador : IRequestHandler<Modelo, ResponseModel>
         {
 
             private readonly ProyectoContext _context;
@@ -42,14 +44,15 @@ namespace Aplicacion.Metodos.Cliente
                 _tokenCliente = tokenCliente;
             }
 
-            public async Task<ClienteData> Handle(Modelo request, CancellationToken cancellationToken)
+            public async Task<ResponseModel> Handle(Modelo request, CancellationToken cancellationToken)
             {
                 var cliente = await _context.clientes
                    .FirstOrDefaultAsync(c => c.correo == request.correo);
 
                 if (cliente == null)
                 {
-                    throw new KeyNotFoundException("Este correo no esta registrado");
+                    return ResponseService.Respuesta(StatusCodes.Status404NotFound,null, "Este correo no esta registrado");
+                    
                 }
 
                
@@ -57,11 +60,11 @@ namespace Aplicacion.Metodos.Cliente
 
                 if (resultado == PasswordVerificationResult.Failed)
                 {
-                    throw new KeyNotFoundException("La contraseña es incorrecta");
+                   return ResponseService.Respuesta(StatusCodes.Status401Unauthorized,null, "La contraseña es incorrecta");
                 }
 
 
-                return new ClienteData
+                var session = new ClienteData
                 {
                     nombre = cliente.nombre,
                     apellido = cliente.apellido,
@@ -69,6 +72,8 @@ namespace Aplicacion.Metodos.Cliente
                     Token = _tokenCliente.CrearToken(cliente)
                     
                 };
+
+                return ResponseService.Respuesta(StatusCodes.Status200OK,session);
             }
         }
         
