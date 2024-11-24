@@ -1,17 +1,19 @@
 ﻿using MediatR;
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Persistencia.Context;
 using Aplicacion.Seguridad;
 using Aplicacion.Seguridad.Usuario;
+using Aplicacion.Seguridad.Response;
 using Dominio.Entidades;
 
 namespace Aplicacion.Metodos.Usuario
 {
     public class Insertar
     {
-        public class Modelo: IRequest<UsuarioData>
+        public class Modelo: IRequest<ResponseModel>
         {
             public string nombre { get; set; }
             public string apellido { get; set; }
@@ -36,7 +38,7 @@ namespace Aplicacion.Metodos.Usuario
             }
         }
 
-        public class Manejador : IRequestHandler<Modelo, UsuarioData>
+        public class Manejador : IRequestHandler<Modelo, ResponseModel>
         {
             private readonly ProyectoContext _context;
             private readonly UserManager<Usuarios> _userManager;
@@ -49,13 +51,14 @@ namespace Aplicacion.Metodos.Usuario
                 _tokenUsuario = tokenUsuario;
             }
 
-            public async Task<UsuarioData> Handle(Modelo request, CancellationToken cancellationToken)
+            public async Task<ResponseModel> Handle(Modelo request, CancellationToken cancellationToken)
             {
                 var usuarioRegistrado = await _context.Users.Where(x => x.Email == request.correo).AnyAsync();
 
-                if (usuarioRegistrado)
+                if (usuarioRegistrado == true)
                 {
-                    throw new KeyNotFoundException("Este correo ya esta registrado");
+                   return ResponseService.Respuesta(StatusCodes.Status409Conflict,null, "Este correo ya esta registrado");
+                    
                 }
 
                 var usuario = new Usuarios
@@ -70,19 +73,21 @@ namespace Aplicacion.Metodos.Usuario
                 var resultado = await _userManager.CreateAsync(usuario, request.password);
                 if (resultado.Succeeded)
                 {
-                    return new UsuarioData
+                    var nuevo_usuario = new UsuarioData
                     {
                         nombre = usuario.nombre,
                         apellido = usuario.apellido,
                         email = request.correo,
                         Token = _tokenUsuario.CrearToken(usuario)
                     };
+                    return ResponseService.Respuesta(StatusCodes.Status201Created,nuevo_usuario);
                 }
 
                 else
                 {
+                    return ResponseService.Respuesta(StatusCodes.Status500InternalServerError, null, "No se puede agregar el usuario");
 
-                    throw new InvalidOperationException("No se puede agregar el usuario");
+                    
                 }
             }
         }

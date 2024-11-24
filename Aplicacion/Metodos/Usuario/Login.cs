@@ -4,13 +4,14 @@ using Dominio.Entidades;
 using Microsoft.AspNetCore.Identity;
 using Aplicacion.Seguridad;
 using Aplicacion.Seguridad.Usuario;
-
+using Aplicacion.Seguridad.Response;
+using Microsoft.AspNetCore.Http;
 
 namespace Aplicacion.Metodos.Usuario
 {
     public class Login
     {
-        public class Modelo: IRequest<UsuarioData>
+        public class Modelo: IRequest<ResponseModel>
         {
             public string email { get; set; }
 
@@ -26,7 +27,7 @@ namespace Aplicacion.Metodos.Usuario
             }
         }
 
-        public class Manejador : IRequestHandler<Modelo, UsuarioData>
+        public class Manejador : IRequestHandler<Modelo, ResponseModel>
         {
             private readonly UserManager<Usuarios> _userManager;
             private readonly SignInManager<Usuarios> _signInManager;
@@ -39,28 +40,31 @@ namespace Aplicacion.Metodos.Usuario
                 _tokenUsuario = tokenUsuario;
             }
 
-            public async Task<UsuarioData> Handle(Modelo request, CancellationToken cancellationToken)
+            public async Task<ResponseModel> Handle(Modelo request, CancellationToken cancellationToken)
             {
                 var usuario = await _userManager.FindByEmailAsync(request.email);
                 if (usuario == null)
                 {
-                    throw new KeyNotFoundException("No se encontro el usuario");
+                    return ResponseService.Respuesta(StatusCodes.Status404NotFound,null, "No se encontro el usuario");
+                    
                 }
 
                 var resultado = await _signInManager.CheckPasswordSignInAsync(usuario, request.password, false);
 
                 if (resultado.Succeeded)
                 {
-                    return new UsuarioData
+                    var datos = new UsuarioData
                     {
                         nombre = usuario.nombre,
                         apellido = usuario.apellido,
                         email = usuario.Email,
                         Token = _tokenUsuario.CrearToken(usuario)
                     };
-                }
 
-                throw new KeyNotFoundException("La contraseña es incorrecta");
+                    return ResponseService.Respuesta(StatusCodes.Status200OK, datos);   
+                }
+                return ResponseService.Respuesta(StatusCodes.Status401Unauthorized,null, "La contraseña es incorrecta");
+                
 
             }
         }

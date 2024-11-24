@@ -1,5 +1,7 @@
 ﻿using Aplicacion.Seguridad.Usuario;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Http;
+using Aplicacion.Seguridad.Response;
 using Aplicacion.Seguridad;
 using MediatR;
 using Dominio.Entidades;
@@ -8,9 +10,9 @@ namespace Aplicacion.Metodos.Usuario
 {
     public class UsuarioActual
     {
-        public class Modelo: IRequest<UsuarioData> { }
+        public class Modelo: IRequest<ResponseModel> { }
 
-        public class Manejador : IRequestHandler<Modelo, UsuarioData>
+        public class Manejador : IRequestHandler<Modelo, ResponseModel>
         {
             private readonly UserManager<Usuarios> _userManager;
             private readonly ITokenUsuario _tokenUsuario;
@@ -23,14 +25,14 @@ namespace Aplicacion.Metodos.Usuario
                 _usuarioSesion = usuarioSesion;
             }
 
-            public async Task<UsuarioData> Handle(Modelo request, CancellationToken cancellationToken)
+            public async Task<ResponseModel> Handle(Modelo request, CancellationToken cancellationToken)
             {
                 var usuario = await _userManager.FindByNameAsync(_usuarioSesion.ObtenerUsuarioSesion());
                 if(usuario == null)
                 {
-                    throw new KeyNotFoundException("No se encontro el usuario");
+                    return ResponseService.Respuesta(StatusCodes.Status404NotFound,null, "No se encontro el usuario"); throw new KeyNotFoundException("No se encontro el usuario");
                 }
-                return new UsuarioData
+                var data = new UsuarioData
                 {
                     nombre = usuario.nombre,
                     apellido = usuario.apellido,
@@ -38,6 +40,7 @@ namespace Aplicacion.Metodos.Usuario
                     Token = _tokenUsuario.CrearToken(usuario)
                 };
                 
+                return ResponseService.Respuesta(StatusCodes.Status200OK,data);
                 
             }
         }
