@@ -36,7 +36,7 @@ namespace GoDrive.Api.Controllers
 
         }
 
-
+        [Authorize(Policy = "User")]
         [HttpGet("listado")]
         public async Task<ActionResult<List<Usuarios>>> Lista()
         {
@@ -48,7 +48,7 @@ namespace GoDrive.Api.Controllers
             return response.Data;
             
         }
-
+        [AllowAnonymous]
         [HttpGet]
         public async Task<ActionResult<UsuarioData>> DevolverUsuario()
         { 

@@ -66,6 +66,7 @@ namespace Aplicacion.Metodos.Cliente
 
                 var session = new ClienteData
                 {
+                    Id = cliente.id,
                     nombre = cliente.nombre,
                     apellido = cliente.apellido,
                     correo = cliente.correo,

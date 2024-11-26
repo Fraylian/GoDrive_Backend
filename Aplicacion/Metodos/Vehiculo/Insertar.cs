@@ -113,28 +113,20 @@ namespace Aplicacion.Metodos.Vehiculo
                     return ResponseService.Respuesta(StatusCodes.Status500InternalServerError,null, "No se pudo insertar el vehículo.");
                     
                 }
-
-               
                 if (request.Imagenes != null && request.Imagenes.Any())
                 {
-                    var listaImagenes = request.Imagenes.Select(imagenBase64 =>
+                    var listaImagenes = request.Imagenes.Select(imagenBase64 => new Imagen
                     {
-                        
-                        if (imagenBase64.Contains(","))
-                        {
-                            imagenBase64 = imagenBase64.Split(",")[1];
-                        }
-
-                        return new Imagen
-                        {
-                            vehiculo_id = vehiculo.id,
-                            Data = Convert.FromBase64String(imagenBase64) 
-                        };
+                        vehiculo_id = vehiculo.id,
+                        Data = System.Text.Encoding.UTF8.GetBytes(imagenBase64) // Almacena la cadena completa como byte[]
                     }).ToList();
 
                     _context.imagenes.AddRange(listaImagenes);
                     await _context.SaveChangesAsync();
                 }
+
+
+
                 return ResponseService.Respuesta(StatusCodes.Status201Created);
 
             }

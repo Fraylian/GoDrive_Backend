@@ -7,9 +7,10 @@ using Aplicacion.Seguridad.Response;
 
 namespace GoDrive.Api.Controllers
 {
-    [AllowAnonymous]
+    
     public class VehiculoController : GeneralController
     {
+        
         [HttpPost]
 
         public async Task<ActionResult<ResponseModel>> Insertar([FromBody] Insertar.modeloVehiculos datos)
@@ -24,6 +25,7 @@ namespace GoDrive.Api.Controllers
 
         }
 
+        [AllowAnonymous]
         [HttpGet("lista")]
         public async Task<ActionResult<List<listado.Modelo>>> Lista()
         {
@@ -55,6 +57,7 @@ namespace GoDrive.Api.Controllers
 
         }
 
+        [AllowAnonymous]
         [HttpGet("filtrar")]
         public async Task<ActionResult<ResponseModel>> Filtro([FromQuery] Filtros.Parametros modelo)
         {
@@ -69,6 +72,7 @@ namespace GoDrive.Api.Controllers
             
         }
 
+        [Authorize(Policy = "User")]
         [HttpPut("editar/{id}")]
 
         public async Task<ActionResult<ResponseModel>> Editar(int id, [FromBody] Actualizar.modelo modelo)
@@ -89,6 +93,7 @@ namespace GoDrive.Api.Controllers
 
         }
 
+        [Authorize(Policy = "User")]
         [HttpDelete("{id}")]
         public async Task<ActionResult<ResponseModel>> Eliminar(int id)
         {

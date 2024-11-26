@@ -30,7 +30,7 @@ namespace Aplicacion.Metodos.Usuario
                 var usuario = await _userManager.FindByNameAsync(_usuarioSesion.ObtenerUsuarioSesion());
                 if(usuario == null)
                 {
-                    return ResponseService.Respuesta(StatusCodes.Status404NotFound,null, "No se encontro el usuario"); throw new KeyNotFoundException("No se encontro el usuario");
+                    return ResponseService.Respuesta(StatusCodes.Status404NotFound,null, "No se encontro el usuario");
                 }
                 var data = new UsuarioData
                 {

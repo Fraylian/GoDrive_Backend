@@ -83,6 +83,12 @@ namespace Aplicacion.Metodos.Factura
                     ? "FAC-0001"
                     : $"FAC-{(int.Parse(ultimaFactura.numero_factura.Split('-')[1]) + 1):D4}";
 
+
+                var cliente = _context.clientes.Where(x => x.id == request.id_cliente).FirstOrDefaultAsync();
+                if (cliente == null)
+                {
+                    return ResponseService.Respuesta(StatusCodes.Status404NotFound, null, "No se encontro el cliente");
+                }
                 var factura = new factura
                 {
                     id_cliente = request.id_cliente,
